@@ -1,0 +1,5 @@
+
+> web@0.1.0 format /home/dracarys/Documents/projects/fullstack/devroast/apps/web
+> biome format . --write
+
+Formatted 7 files in 1079µs. No fixes applied.

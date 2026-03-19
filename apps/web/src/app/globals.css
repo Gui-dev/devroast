@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation
+    Mono, Courier New, monospace;
+  --font-sans: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation
+    Mono, Courier New, monospace;
+
+  --color-accent-green: #10b981;
+  --color-accent-amber: #f59e0b;
+  --color-accent-cyan: #06b6d4;
+  --color-accent-red: #ef4444;
+  --color-accent: #f2f3f0;
+
+  --color-border: #cbccc9;
+  --color-border-primary: #1f1f1f;
+  --color-border-secondary: #252525;
+
+  --color-bg-page: #0c0c0c;
+  --color-bg-elevated: #1a1a1a;
+  --color-bg-surface: #0f0f0f;
+  --color-bg-input: #111111;
+
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #4b5563;
+
+  --color-primary: #ff8400;
+  --color-secondary: #e7e8e5;
+  --color-secondary-foreground: #111111;
+  --color-foreground: #111111;
+  --color-muted: #f2f3f0;
+  --color-destructive: #d93c15;
+  --color-destructive-foreground: #ffffff;
+
+  --color-ring: #666666;
+  --color-input: #cbccc9;
+
+  --radius-none: 0;
+  --radius-m: 16;
+  --radius-pill: 9999px;
+}
+
+@layer base {
+  html {
+    @apply h-full bg-bg-page text-text-primary antialiased;
+  }
+
+  body {
+    @apply h-full bg-bg-page text-text-primary font-mono;
+  }
+}

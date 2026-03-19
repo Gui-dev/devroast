@@ -1,0 +1,5 @@
+
+> web@0.1.0 format:check /home/dracarys/Documents/projects/fullstack/devroast/apps/web
+> biome format .
+
+Checked 7 files in 1035µs. No fixes applied.
