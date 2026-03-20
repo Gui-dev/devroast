@@ -36,6 +36,17 @@
   --color-ring: #666666;
   --color-input: #cbccc9;
 
+  --color-diff-removed: #1a0a0a;
+  --color-diff-added: #0a1a0f;
+
+  --color-syn-keyword: #c678dd;
+  --color-syn-function: #61afef;
+  --color-syn-variable: #e06c75;
+  --color-syn-number: #d19a66;
+  --color-syn-string: #e5c07b;
+  --color-syn-operator: #abb2bf;
+  --color-syn-type: #e5c07b;
+
   --radius-none: 0;
   --radius-m: 16;
   --radius-pill: 9999px;
