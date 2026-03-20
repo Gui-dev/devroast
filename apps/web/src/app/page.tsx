@@ -1,6 +1,12 @@
 import { Button } from '@/components/ui/button'
-import { CodeBlock } from '@/components/ui/code-block'
-import { LeaderboardRow } from '@/components/ui/leaderboard-row'
+import { CodeBlock, CodeBlockContent } from '@/components/ui/code-block'
+import {
+  LeaderboardCode,
+  LeaderboardLanguage,
+  LeaderboardRank,
+  LeaderboardRow,
+  LeaderboardScore,
+} from '@/components/ui/leaderboard-row'
 import { Link } from '@/components/ui/link'
 import { Toggle } from '@/components/ui/toggle'
 
@@ -47,7 +53,9 @@ export default function HomePage() {
       </div>
 
       <div className="mx-auto w-full max-w-[780px]">
-        <CodeBlock code={codeExample} lang="javascript" />
+        <CodeBlock lang="javascript">
+          <CodeBlockContent code={codeExample} lang="javascript" />
+        </CodeBlock>
       </div>
 
       <div className="mx-auto flex w-full max-w-[780px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -78,7 +86,12 @@ export default function HomePage() {
 
         <div className="flex flex-col border border-border-primary">
           {leaderboardData.map(item => (
-            <LeaderboardRow key={item.rank} {...item} />
+            <LeaderboardRow key={item.rank}>
+              <LeaderboardRank>{item.rank}</LeaderboardRank>
+              <LeaderboardScore>{item.score}</LeaderboardScore>
+              <LeaderboardCode>{item.codePreview}</LeaderboardCode>
+              <LeaderboardLanguage>{item.language}</LeaderboardLanguage>
+            </LeaderboardRow>
           ))}
         </div>
 

@@ -1,10 +1,16 @@
 import { Navbar } from '@/components/navbar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { CodeBlock } from '@/components/ui/code-block'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { CodeBlock, CodeBlockContent, CodeBlockHeader } from '@/components/ui/code-block'
 import { DiffLine } from '@/components/ui/diff-line'
-import { LeaderboardRow } from '@/components/ui/leaderboard-row'
+import {
+  LeaderboardCode,
+  LeaderboardLanguage,
+  LeaderboardRank,
+  LeaderboardRow,
+  LeaderboardScore,
+} from '@/components/ui/leaderboard-row'
 import { Link } from '@/components/ui/link'
 import { ScoreRing } from '@/components/ui/score-ring'
 import { Toggle } from '@/components/ui/toggle'
@@ -109,7 +115,10 @@ export default function ComponentsPage() {
           <span className="text-accent-green">{'//'}</span> code_block
         </h2>
 
-        <CodeBlock code={codeExample} lang="javascript" filename="calculate.js" />
+        <CodeBlock lang="javascript">
+          <CodeBlockHeader>calculate.js</CodeBlockHeader>
+          <CodeBlockContent code={codeExample} lang="javascript" />
+        </CodeBlock>
       </section>
 
       <section className="flex flex-col gap-6">
@@ -118,26 +127,50 @@ export default function ComponentsPage() {
         </h2>
 
         <div className="flex flex-col gap-4">
-          <Card
-            variant="critical"
-            title="using var instead of const/let"
-            description="the var keyword is function-scoped rather than block-scoped, which can lead to unexpected behavior and bugs. modern javascript uses const for immutable bindings and let for mutable ones."
-          />
-          <Card
-            variant="warning"
-            title="missing error handling"
-            description="the function does not handle errors or edge cases, which can lead to unexpected behavior when the input is invalid or the operation fails."
-          />
-          <Card
-            variant="good"
-            title="using const for immutable bindings"
-            description="the code correctly uses const for values that should not be reassigned, making the code more predictable and easier to reason about."
-          />
-          <Card
-            variant="needs_serious_help"
-            title="eval usage detected"
-            description="using eval() is extremely dangerous as it allows execution of arbitrary code and can lead to code injection attacks."
-          />
+          <Card variant="critical">
+            <CardHeader>
+              <Badge variant="critical" />
+            </CardHeader>
+            <CardTitle>using var instead of const/let</CardTitle>
+            <CardDescription>
+              the var keyword is function-scoped rather than block-scoped, which can lead to
+              unexpected behavior and bugs. modern javascript uses const for immutable bindings and
+              let for mutable ones.
+            </CardDescription>
+          </Card>
+
+          <Card variant="warning">
+            <CardHeader>
+              <Badge variant="warning" />
+            </CardHeader>
+            <CardTitle>missing error handling</CardTitle>
+            <CardDescription>
+              the function does not handle errors or edge cases, which can lead to unexpected
+              behavior when the input is invalid or the operation fails.
+            </CardDescription>
+          </Card>
+
+          <Card variant="good">
+            <CardHeader>
+              <Badge variant="good" />
+            </CardHeader>
+            <CardTitle>using const for immutable bindings</CardTitle>
+            <CardDescription>
+              the code correctly uses const for values that should not be reassigned, making the
+              code more predictable and easier to reason about.
+            </CardDescription>
+          </Card>
+
+          <Card variant="needs_serious_help">
+            <CardHeader>
+              <Badge variant="needs_serious_help" />
+            </CardHeader>
+            <CardTitle>eval usage detected</CardTitle>
+            <CardDescription>
+              using eval() is extremely dangerous as it allows execution of arbitrary code and can
+              lead to code injection attacks.
+            </CardDescription>
+          </Card>
         </div>
       </section>
 
@@ -147,24 +180,28 @@ export default function ComponentsPage() {
         </h2>
 
         <div className="flex w-full max-w-2xl flex-col">
-          <LeaderboardRow
-            rank={1}
-            score={2.1}
-            codePreview="function calculateTotal(items) { var total = 0; ..."
-            language="javascript"
-          />
-          <LeaderboardRow
-            rank={2}
-            score={4.5}
-            codePreview="const calculateTotal = (items) => items.reduce..."
-            language="javascript"
-          />
-          <LeaderboardRow
-            rank={3}
-            score={7.8}
-            codePreview="function calculateTotal(items: Item[]): number { ..."
-            language="typescript"
-          />
+          <LeaderboardRow>
+            <LeaderboardRank>1</LeaderboardRank>
+            <LeaderboardScore>2.1</LeaderboardScore>
+            <LeaderboardCode>
+              function calculateTotal(items) {'{'} var total = 0; ...
+            </LeaderboardCode>
+            <LeaderboardLanguage>javascript</LeaderboardLanguage>
+          </LeaderboardRow>
+          <LeaderboardRow>
+            <LeaderboardRank>2</LeaderboardRank>
+            <LeaderboardScore>4.5</LeaderboardScore>
+            <LeaderboardCode>const calculateTotal = (items) =&gt; items.reduce...</LeaderboardCode>
+            <LeaderboardLanguage>javascript</LeaderboardLanguage>
+          </LeaderboardRow>
+          <LeaderboardRow>
+            <LeaderboardRank>3</LeaderboardRank>
+            <LeaderboardScore>7.8</LeaderboardScore>
+            <LeaderboardCode>
+              function calculateTotal(items: Item[]): number {'{'} ...
+            </LeaderboardCode>
+            <LeaderboardLanguage>typescript</LeaderboardLanguage>
+          </LeaderboardRow>
         </div>
       </section>
 

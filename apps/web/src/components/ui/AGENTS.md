@@ -141,6 +141,44 @@ Manter o `children` simples. Para ícones ou estados de loading, usar children c
 <Button isLoading={true} leftIcon={<Icon />} />
 ```
 
+### 11. Padrão de Composição
+
+Componentes complexos devem ser divididos em sub-componentes usando o padrão de composição:
+
+```tsx
+// Estrutura de Card com composição
+<Card variant="critical">
+  <CardHeader>
+    <Badge variant="critical" />
+  </CardHeader>
+  <CardTitle>Título do Card</CardTitle>
+  <CardDescription>Descrição do Card</CardDescription>
+</Card>
+```
+
+```tsx
+// Estrutura de CodeBlock com composição
+<CodeBlock lang="javascript">
+  <CodeBlockHeader>arquivo.js</CodeBlockHeader>
+  <CodeBlockContent code="..." lang="javascript" />
+</CodeBlock>
+```
+
+```tsx
+// Estrutura de LeaderboardRow com composição
+<LeaderboardRow>
+  <LeaderboardRank>1</LeaderboardRank>
+  <LeaderboardScore>9.5</LeaderboardScore>
+  <LeaderboardCode>code snippet...</LeaderboardCode>
+  <LeaderboardLanguage>javascript</LeaderboardLanguage>
+</LeaderboardRow>
+```
+
+**Regras:**
+- Exportar todos os sub-componentes do mesmo arquivo
+- Sub-componentes devem receber `children` como conteúdo principal
+- Sub-componentes devem aceitar `className` para customização
+
 ## Design System Tokens
 
 Cores definidas em `globals.css`:
@@ -187,10 +225,30 @@ text-syn-operator   /* #abb2bf */
 | `Toggle` | `toggle.tsx` | Switch toggle customizado com useState |
 | `DiffLine` | `diff-line.tsx` | Linhas de diff com variantes removed, added, context |
 | `CodeBlock` | `code-block.tsx` | Bloco de código com syntax highlighting (shiki + tema vesper) |
-| `Card` | `card.tsx` | Card de análise com header, título e descrição |
-| `LeaderboardRow` | `leaderboard-row.tsx` | Linha de leaderboard com rank, score, código e linguagem |
+| `Card` | `card.tsx` | Card de análise com sub-componentes (Header, Title, Description) |
+| `LeaderboardRow` | `leaderboard-row.tsx` | Linha de leaderboard com sub-componentes (Rank, Score, Code, Language) |
 | `ScoreRing` | `score-ring.tsx` | Gráfico circular de pontuação com gradiente |
 | `Link` | `link.tsx` | Link de navegação usando Next.js Link |
+
+### Sub-componentes
+
+**Card:**
+- `Card` - Container principal
+- `CardHeader` - Header wrapper
+- `CardTitle` - Título
+- `CardDescription` - Descrição
+
+**CodeBlock:**
+- `CodeBlock` - Container principal
+- `CodeBlockHeader` - Header com dots
+- `CodeBlockContent` - Área do código com números de linha
+
+**LeaderboardRow:**
+- `LeaderboardRow` - Container da linha
+- `LeaderboardRank` - Coluna de rank (#N)
+- `LeaderboardScore` - Coluna de score
+- `LeaderboardCode` - Coluna de preview do código
+- `LeaderboardLanguage` - Coluna de linguagem
 
 ### Componentes de Layout
 
