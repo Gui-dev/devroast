@@ -21,3 +21,4 @@ out/
 # Ignorar arquivos do turbo
 .cache/
 turbo.json
+.turbo

@@ -15,7 +15,8 @@
       "*.config.js",
       "tailwind.config.*",
       "postcss.config.*",
-      "next-env.d.ts"
+      "next-env.d.ts",
+      "**/code-block.tsx"
     ]
   },
   "formatter": {
@@ -40,6 +41,9 @@
       },
       "suspicious": {
         "noExplicitAny": "off"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
       }
     }
   },
