@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/ui/code-block'
 import { LeaderboardRow } from '@/components/ui/leaderboard-row'
+import { Link } from '@/components/ui/link'
 import { Toggle } from '@/components/ui/toggle'
 
 const codeExample = `function calculateTotal(items) {
@@ -72,7 +73,7 @@ export default function HomePage() {
           <h2 className="font-mono text-lg font-bold text-text-primary">
             {'//'} the worst code on the internet, ranked by shame
           </h2>
-          <Button variant="link">$ view_all &gt;&gt;</Button>
+          <Link href="/leaderboard">$ view_all &gt;&gt;</Link>
         </div>
 
         <div className="flex flex-col border border-border-primary">
@@ -82,7 +83,10 @@ export default function HomePage() {
         </div>
 
         <p className="text-center font-sans text-xs text-text-tertiary">
-          showing top 3 of 2,847 · view full leaderboard &gt;&gt;
+          showing top 3 of 2,847 ·{' '}
+          <Link href="/leaderboard" className="text-text-secondary">
+            view full leaderboard &gt;&gt;
+          </Link>
         </p>
       </section>
 
