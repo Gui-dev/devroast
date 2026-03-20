@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { CodeBlock, CodeBlockContent } from '@/components/ui/code-block'
+import { CodeBlock, CodeBlockContent, CodeBlockHeader } from '@/components/ui/code-block'
 import {
   LeaderboardCode,
   LeaderboardLanguage,
@@ -53,7 +53,8 @@ export default function HomePage() {
       </div>
 
       <div className="mx-auto w-full max-w-[780px]">
-        <CodeBlock lang="javascript">
+        <CodeBlock>
+          <CodeBlockHeader>calculate.js</CodeBlockHeader>
           <CodeBlockContent code={codeExample} lang="javascript" />
         </CodeBlock>
       </div>

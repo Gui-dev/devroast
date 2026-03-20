@@ -2,25 +2,18 @@ import { cn } from "@/lib/cn";
 import { type HTMLAttributes, forwardRef } from "react";
 import { codeToHtml } from "shiki";
 
-export type CodeBlockProps = HTMLAttributes<HTMLDivElement> & {
-  lang?: string;
-};
-
-const CodeBlock = forwardRef<HTMLDivElement, CodeBlockProps>(
-  async ({ className, lang = "javascript", children, ...props }, ref) => {
-    const code = typeof children === "string" ? children : "";
-    const html = await codeToHtml(code, {
-      lang,
-      theme: "vesper",
-    });
-
+const CodeBlock = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...props }, ref) => {
     return (
-      <div ref={ref} className={cn("w-full", className)} {...props}>
+      <div
+        ref={ref}
+        className={cn(
+          "w-full overflow-hidden rounded-md border border-border-primary",
+          className,
+        )}
+        {...props}
+      >
         {children}
-        <div
-          className="rounded-md border border-border-primary overflow-hidden"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
       </div>
     );
   },
@@ -61,26 +54,32 @@ const CodeBlockContent = forwardRef<
     code: string;
     lang?: string;
   }
->(({ className, code, lang = "javascript", ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn("flex", className)}
-      {...props}
-    >
-      <div className="flex w-10 flex-col gap-1.5 border-r border-border-primary bg-bg-surface px-2.5 py-3 font-mono text-[13px] leading-normal text-text-tertiary">
-        {code.split("\n").map((_, i) => {
-          const lineNumber = i + 1;
-          return (
-            <span key={`line-${lineNumber}`} className="w-full text-right pr-4">
-              {lineNumber}
+>(
+  async ({ className, code, lang = "javascript", ...props }, ref) => {
+    const html = await codeToHtml(code, {
+      lang,
+      theme: "vesper",
+    });
+
+    const lines = code.split("\n");
+
+    return (
+      <div ref={ref} className={cn("flex", className)} {...props}>
+        <div className="flex w-10 flex-col border-r border-border-primary bg-bg-surface py-3 pr-4 font-mono text-[13px] leading-normal text-text-tertiary">
+          {lines.map((_, i) => (
+            <span key={`line-${i + 1}`} className="w-full text-right">
+              {i + 1}
             </span>
-          );
-        })}
+          ))}
+        </div>
+        <div
+          className="min-w-0 flex-1 overflow-x-auto bg-bg-page px-4 py-3 [&>pre]:!bg-transparent [&>pre]:!p-0"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 CodeBlockContent.displayName = "CodeBlockContent";
 
