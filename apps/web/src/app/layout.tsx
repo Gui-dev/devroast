@@ -1,3 +1,4 @@
+import { Navbar } from '@/components/navbar'
 import type { Metadata } from 'next'
 import { IBM_Plex_Mono, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
@@ -17,7 +18,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: 'devroast',
-  description: '',
+  description: 'Paste your code. Get roasted.',
 }
 
 export default function RootLayout({
@@ -27,7 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={`${jetbrainsMono.variable} ${ibmPlexMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <Navbar />
+        <main>{children}</main>
+      </body>
     </html>
   )
 }
