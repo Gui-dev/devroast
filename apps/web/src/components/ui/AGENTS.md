@@ -187,6 +187,16 @@ text-syn-operator   /* #abb2bf */
 | `Toggle` | `toggle.tsx` | Switch toggle customizado com useState |
 | `DiffLine` | `diff-line.tsx` | Linhas de diff com variantes removed, added, context |
 | `CodeBlock` | `code-block.tsx` | Bloco de código com syntax highlighting (shiki + tema vesper) |
+| `Card` | `card.tsx` | Card de análise com header, título e descrição |
+| `LeaderboardRow` | `leaderboard-row.tsx` | Linha de leaderboard com rank, score, código e linguagem |
+| `ScoreRing` | `score-ring.tsx` | Gráfico circular de pontuação com gradiente |
+| `Link` | `link.tsx` | Link de navegação usando Next.js Link |
+
+### Componentes de Layout
+
+| Componente | Arquivo | Descrição |
+|-----------|---------|-----------|
+| `Navbar` | `navbar.tsx` | Barra de navegação do topo |
 
 ### Dependências de Bibliotecas
 
