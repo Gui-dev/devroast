@@ -52,14 +52,14 @@ export default function HomePage() {
         </p>
       </div>
 
-      <div className="mx-auto w-full max-w-[780px]">
+      <div className="mx-auto w-full max-w-195">
         <CodeBlock>
           <CodeBlockHeader>calculate.js</CodeBlockHeader>
           <CodeBlockContent code={codeExample} lang="javascript" />
         </CodeBlock>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[780px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto flex w-full max-w-195 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Toggle label="roast mode" />
           <span className="font-sans text-xs text-text-tertiary">
@@ -77,7 +77,7 @@ export default function HomePage() {
 
       <div className="h-4 sm:h-8" />
 
-      <section className="mx-auto flex w-full max-w-[960px] flex-col gap-4 sm:gap-6">
+      <section className="mx-auto flex w-full max-w-240 flex-col gap-4 sm:gap-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-mono text-base font-bold text-text-primary sm:text-lg">
             {'//'} the worst code on the internet, ranked by shame

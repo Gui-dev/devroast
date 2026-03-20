@@ -73,7 +73,7 @@ const CodeBlockContent = forwardRef<
           ))}
         </div>
         <div
-          className="min-w-0 flex-1 overflow-x-auto bg-bg-page px-4 py-3 [&>pre]:!bg-transparent [&>pre]:!p-0"
+          className="min-w-0 flex-1 overflow-x-auto bg-bg-page px-4 py-3 [&>pre]:bg-transparent! [&>pre]:p-0!"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
