@@ -1,15 +1,10 @@
 import { cn } from '@/lib/cn'
 import { type HTMLAttributes, forwardRef } from 'react'
 
-export type LeaderboardRowProps = HTMLAttributes<HTMLDivElement> & {
-  rank: number | string
-  score: number | string
-  codePreview: string
-  language: string
-}
+export type LeaderboardRowProps = HTMLAttributes<HTMLDivElement>
 
 const LeaderboardRow = forwardRef<HTMLDivElement, LeaderboardRowProps>(
-  ({ className, rank, score, codePreview, language, ...props }, ref) => {
+  ({ className, children, ...props }, ref) => {
     return (
       <div
         ref={ref}
@@ -19,18 +14,7 @@ const LeaderboardRow = forwardRef<HTMLDivElement, LeaderboardRowProps>(
         )}
         {...props}
       >
-        <span className="w-6 font-mono text-[11px] text-text-tertiary sm:w-10 sm:text-[13px]">
-          #{rank}
-        </span>
-        <span className="w-10 font-mono text-[11px] font-bold text-accent-red sm:w-[60px] sm:text-[13px]">
-          {score}
-        </span>
-        <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-text-secondary sm:text-[12px]">
-          {codePreview}
-        </span>
-        <span className="hidden w-[100px] font-mono text-[11px] text-text-tertiary sm:block sm:text-[12px] md:text-[13px]">
-          {language}
-        </span>
+        {children}
       </div>
     )
   }
@@ -38,4 +22,80 @@ const LeaderboardRow = forwardRef<HTMLDivElement, LeaderboardRowProps>(
 
 LeaderboardRow.displayName = 'LeaderboardRow'
 
-export { LeaderboardRow }
+const LeaderboardRank = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={cn(
+          'w-6 font-mono text-[11px] text-text-tertiary sm:w-10 sm:text-[13px]',
+          className
+        )}
+        {...props}
+      >
+        #{children}
+      </span>
+    )
+  }
+)
+
+LeaderboardRank.displayName = 'LeaderboardRank'
+
+const LeaderboardScore = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={cn(
+          'w-10 font-mono text-[11px] font-bold text-accent-red sm:w-[60px] sm:text-[13px]',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </span>
+    )
+  }
+)
+
+LeaderboardScore.displayName = 'LeaderboardScore'
+
+const LeaderboardCode = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={cn(
+          'min-w-0 flex-1 truncate font-mono text-[11px] text-text-secondary sm:text-[12px]',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </span>
+    )
+  }
+)
+
+LeaderboardCode.displayName = 'LeaderboardCode'
+
+const LeaderboardLanguage = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={cn(
+          'hidden w-[100px] font-mono text-[11px] text-text-tertiary sm:block sm:text-[12px] md:text-[13px]',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </span>
+    )
+  }
+)
+
+LeaderboardLanguage.displayName = 'LeaderboardLanguage'
+
+export { LeaderboardRow, LeaderboardRank, LeaderboardScore, LeaderboardCode, LeaderboardLanguage }
