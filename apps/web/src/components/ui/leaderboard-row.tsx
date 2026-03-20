@@ -14,17 +14,23 @@ const LeaderboardRow = forwardRef<HTMLDivElement, LeaderboardRowProps>(
       <div
         ref={ref}
         className={cn(
-          'flex items-center gap-6 border-b border-border-primary px-5 py-4',
+          'flex flex-wrap items-center gap-2 border-b border-border-primary px-3 py-3 sm:gap-4 sm:px-4 sm:py-4 md:gap-6 md:px-5',
           className
         )}
         {...props}
       >
-        <span className="w-10 font-mono text-[13px] text-text-tertiary">#{rank}</span>
-        <span className="w-[60px] font-mono text-[13px] font-bold text-accent-red">{score}</span>
-        <span className="flex-1 truncate font-mono text-[12px] text-text-secondary">
+        <span className="w-6 font-mono text-[11px] text-text-tertiary sm:w-10 sm:text-[13px]">
+          #{rank}
+        </span>
+        <span className="w-10 font-mono text-[11px] font-bold text-accent-red sm:w-[60px] sm:text-[13px]">
+          {score}
+        </span>
+        <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-text-secondary sm:text-[12px]">
           {codePreview}
         </span>
-        <span className="w-[100px] font-mono text-[12px] text-text-tertiary">{language}</span>
+        <span className="hidden w-[100px] font-mono text-[11px] text-text-tertiary sm:block sm:text-[12px] md:text-[13px]">
+          {language}
+        </span>
       </div>
     )
   }

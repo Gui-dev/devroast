@@ -35,22 +35,22 @@ const leaderboardData = [
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col gap-8 px-10 py-20">
+    <div className="flex flex-col gap-6 px-4 sm:gap-8 sm:px-6 md:px-10 py-12 sm:py-16 md:py-20">
       <div className="flex flex-col gap-3 text-center">
-        <h1 className="font-mono text-4xl font-bold">
+        <h1 className="font-mono text-2xl font-bold text-text-primary sm:text-3xl lg:text-4xl">
           <span className="text-accent-green">$ </span>
-          <span className="text-text-primary">paste your code. get roasted.</span>
+          <span>paste your code. get roasted.</span>
         </h1>
         <p className="font-sans text-sm text-text-secondary">
           {'//'} drop your code below and we&apos;ll rate it — brutally honest or full roast mode
         </p>
       </div>
 
-      <div className="mx-auto w-[780px]">
+      <div className="mx-auto w-full max-w-[780px]">
         <CodeBlock code={codeExample} lang="javascript" />
       </div>
 
-      <div className="mx-auto flex w-[780px] items-center justify-between">
+      <div className="mx-auto flex w-full max-w-[780px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Toggle label="roast mode" />
           <span className="font-sans text-xs text-text-tertiary">
@@ -60,17 +60,17 @@ export default function HomePage() {
         <Button>$ roast_my_code</Button>
       </div>
 
-      <div className="flex items-center justify-center gap-6">
-        <span className="font-sans text-xs text-text-tertiary">2,847 codes roasted</span>
-        <span className="text-text-tertiary">·</span>
-        <span className="font-sans text-xs text-text-tertiary">avg score: 4.2/10</span>
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
+        <span className="font-sans text-xs text-text-tertiary sm:text-sm">2,847 codes roasted</span>
+        <span className="hidden text-text-tertiary sm:block">·</span>
+        <span className="font-sans text-xs text-text-tertiary sm:text-sm">avg score: 4.2/10</span>
       </div>
 
-      <div className="h-8" />
+      <div className="h-4 sm:h-8" />
 
-      <section className="mx-auto flex w-[960px] flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <h2 className="font-mono text-lg font-bold text-text-primary">
+      <section className="mx-auto flex w-full max-w-[960px] flex-col gap-4 sm:gap-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="font-mono text-base font-bold text-text-primary sm:text-lg">
             {'//'} the worst code on the internet, ranked by shame
           </h2>
           <Link href="/leaderboard">$ view_all &gt;&gt;</Link>
@@ -82,7 +82,7 @@ export default function HomePage() {
           ))}
         </div>
 
-        <p className="text-center font-sans text-xs text-text-tertiary">
+        <p className="text-center font-sans text-xs text-text-tertiary sm:text-sm">
           showing top 3 of 2,847 ·{' '}
           <Link href="/leaderboard" className="text-text-secondary">
             view full leaderboard &gt;&gt;
@@ -90,7 +90,7 @@ export default function HomePage() {
         </p>
       </section>
 
-      <div className="h-8" />
+      <div className="h-4 sm:h-8" />
     </div>
   )
 }
