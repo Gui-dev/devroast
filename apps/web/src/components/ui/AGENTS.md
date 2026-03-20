@@ -164,4 +164,30 @@ text-accent-red    /* #ef4444 */
 /* Fonts */
 font-mono /* JetBrains Mono */
 font-sans /* IBM Plex Mono */
+
+/* Diff */
+bg-diff-removed  /* #1A0A0A */
+bg-diff-added    /* #0A1A0F */
+
+/* Syntax Highlighting */
+text-syn-keyword    /* #c678dd */
+text-syn-function   /* #61afef */
+text-syn-variable   /* #e06c75 */
+text-syn-number     /* #d19a66 */
+text-syn-string     /* #e5c07b */
+text-syn-operator   /* #abb2bf */
 ```
+
+## Componentes Disponíveis
+
+| Componente | Arquivo | Descrição |
+|-----------|---------|-----------|
+| `Button` | `button.tsx` | Botões com variantes default, secondary, link |
+| `Badge` | `badge.tsx` | Status badges com variantes critical, warning, good, needs_serious_help |
+| `Toggle` | `toggle.tsx` | Switch toggle customizado com useState |
+| `DiffLine` | `diff-line.tsx` | Linhas de diff com variantes removed, added, context |
+| `CodeBlock` | `code-block.tsx` | Bloco de código com syntax highlighting (shiki + tema vesper) |
+
+### Dependências de Bibliotecas
+
+- `shiki` - Syntax highlighting (CodeBlock)
