@@ -1,5 +1,7 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
-import { CodeBlock, CodeBlockContent, CodeBlockHeader } from '@/components/ui/code-block'
+import { CodeEditor } from '@/components/ui/code-editor'
 import {
   LeaderboardCode,
   LeaderboardLanguage,
@@ -9,14 +11,7 @@ import {
 } from '@/components/ui/leaderboard-row'
 import { Link } from '@/components/ui/link'
 import { Toggle } from '@/components/ui/toggle'
-
-const codeExample = `function calculateTotal(items) {
-  var total = 0;
-  for (var i = 0; i < items.length; i++) {
-    total = total + items[i].price;
-  }
-  return total;
-}`
+import { useState } from 'react'
 
 const leaderboardData = [
   {
@@ -40,6 +35,12 @@ const leaderboardData = [
 ]
 
 export default function HomePage() {
+  const [code, setCode] = useState('')
+
+  const handleCodeChange = (newCode: string) => {
+    setCode(newCode)
+  }
+
   return (
     <div className="flex flex-col gap-6 px-4 sm:gap-8 sm:px-6 md:px-10 py-12 sm:py-16 md:py-20">
       <div className="flex flex-col gap-3 text-center">
@@ -53,10 +54,7 @@ export default function HomePage() {
       </div>
 
       <div className="mx-auto w-full max-w-195">
-        <CodeBlock>
-          <CodeBlockHeader>calculate.js</CodeBlockHeader>
-          <CodeBlockContent code={codeExample} lang="javascript" />
-        </CodeBlock>
+        <CodeEditor onChange={handleCodeChange} />
       </div>
 
       <div className="mx-auto flex w-full max-w-195 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -66,7 +64,7 @@ export default function HomePage() {
             {'//'} maximum sarcasm enabled
           </span>
         </div>
-        <Button>$ roast_my_code</Button>
+        <Button disabled={!code}>$ roast_my_code</Button>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
