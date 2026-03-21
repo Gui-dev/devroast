@@ -125,12 +125,11 @@ highlighter.codeToHtml(code, {
 
 ```
 apps/web/src/components/ui/
-├── code-editor.tsx          # Main editor component
-├── code-editor-header.tsx   # Header with Mac dots + lang selector
-├── code-editor-content.tsx  # Code area with line numbers + highlighting
-├── language-selector.tsx    # Language combobox/dropdown
+├── code-editor.tsx            # Main editor component
+├── code-editor-header.tsx     # Header with Mac dots + lang selector
+├── code-editor-content.tsx    # Code area with Shiki highlighting
 └── utils/
-    └── detect-language.ts   # Language detection utility
+    └── detect-language.ts     # Language detection utility
 ```
 
 ### Component API
@@ -138,13 +137,9 @@ apps/web/src/components/ui/
 ```typescript
 // code-editor.tsx
 interface CodeEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  language?: string;
-  onLanguageChange?: (language: string) => void;
+  defaultValue?: string;
+  onChange?: (value: string, language: string) => void;
   showLineNumbers?: boolean;
-  autoDetectLanguage?: boolean;
-  placeholder?: string;
 }
 ```
 
@@ -154,48 +149,6 @@ interface CodeEditorProps {
 |---------|---------|---------|
 | `shiki` | Syntax highlighting | Already installed |
 | `highlight.js` | Language detection | `pnpm add highlight.js` |
-| `@base-ui-components/react` or custom | Language selector | Already have Base UI |
-
-### Implementation Phases
-
-#### Phase 1: Basic Editor
-- [ ] Create `CodeEditor` component with textarea
-- [ ] Integrate Shiki for highlighting
-- [ ] Add line numbers
-- [ ] Basic styling (Mac window frame)
-
-#### Phase 2: Language Features
-- [ ] Add language selector dropdown
-- [ ] Implement auto-detection with highlight.js
-- [ ] Auto-detect on paste
-- [ ] Manual override persists
-
-#### Phase 3: Polish
-- [ ] Tab/Enter key handling
-- [ ] Auto-indent
-- [ ] Line highlighting (optional)
-- [ ] Keyboard shortcuts
-
-### Open Questions
-
-1. **Editing vs Read-only**: Should users be able to edit code, or only paste it?
-   - *Ray.so allows full editing*
-   - *Devroast could be paste-only for simplicity*
-
-2. **Language Detection Trigger**: When should we auto-detect?
-   - *On paste only* (simpler)
-   - *On every change* (more responsive)
-
-3. **Supported Languages**: How many languages to support?
-   - *Top 10-20 most common* (JS, TS, Python, Go, Rust, etc.)
-   - *Full list* (~40 languages like ray.so)
-
-4. **State Management**: How should editor state be managed?
-   - *Local state* (simple, component-level)
-   - *Jotai/Zustand* (share state with analysis results)
-   - *URL hash* (shareable links like ray.so)
-
-5. **Placeholder**: Should there be a placeholder with sample code or empty?
 
 ## Reference Files
 
