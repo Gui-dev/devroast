@@ -73,7 +73,7 @@ export type RoastMode = typeof roastModes[number]
 Optional user table for tracking personal roasts.
 
 ```typescript
-export const users = sqliteTable('users', {
+export const users = pgTable('users', {
   id: text('id').primaryKey(), // UUID or auth provider ID
   email: text('email').unique(),
   username: text('username').unique(),
@@ -87,7 +87,7 @@ export const users = sqliteTable('users', {
 Core table storing roasted code submissions.
 
 ```typescript
-export const roasts = sqliteTable('roasts', {
+export const roasts = pgTable('roasts', {
   id: text('id').primaryKey(), // UUID
   userId: text('user_id').references(() => users.id), // Optional - null for anonymous
 
@@ -101,6 +101,7 @@ export const roasts = sqliteTable('roasts', {
   verdict: text('verdict').$type<Verdict>().notNull(),
   roastQuote: text('roast_quote'), // Sarcastic quote
   roastMode: text('roast_mode').$type<RoastMode>().default('roast').notNull(),
+  suggestedFix: text('suggested_fix'), // Complete fixed code version
 
   // Metadata
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -113,7 +114,7 @@ export const roasts = sqliteTable('roasts', {
 Issues found during code analysis.
 
 ```typescript
-export const analysisIssues = sqliteTable('analysis_issues', {
+export const analysisIssues = pgTable('analysis_issues', {
   id: text('id').primaryKey(),
   roastId: text('roast_id').references(() => roasts.id).notNull(),
 
@@ -132,10 +133,10 @@ export const analysisIssues = sqliteTable('analysis_issues', {
 
 ### 4. Code Diffs
 
-Suggested improvements with before/after code.
+Suggested improvements with before/after code (line-by-line changes).
 
 ```typescript
-export const codeDiffs = sqliteTable('code_diffs', {
+export const codeDiffs = pgTable('code_diffs', {
   id: text('id').primaryKey(),
   roastId: text('roast_id').references(() => roasts.id).notNull(),
 
@@ -156,7 +157,7 @@ export const codeDiffs = sqliteTable('code_diffs', {
 Pre-computed rankings for efficient queries.
 
 ```typescript
-export const leaderboard = sqliteTable('leaderboard', {
+export const leaderboard = pgTable('leaderboard', {
   id: text('id').primaryKey(),
   roastId: text('roast_id').references(() => roasts.id).notNull(),
 
@@ -188,6 +189,7 @@ export const leaderboard = sqliteTable('leaderboard', {
                       │ verdict     │
                       │ roast_quote │
                       │ roast_mode  │
+                      │ suggested_fix│
                       │ created_at  │
                       └──────┬──────┘
                              │
@@ -337,12 +339,13 @@ export const leaderboard = sqliteTable('leaderboard', {
 - [ ] Create cron job or trigger to update leaderboard
 - [ ] Add database indexes for performance
   ```typescript
-  // Add to schema
-  roasts = sqliteTable('roasts', {
+  // Add to schema (using pgTable)
+  export const roasts = pgTable('roasts', {
     // ... fields
-    score: integer('score').notNull().index(),
-    createdAt: integer('created_at').notNull().index(),
-  })
+  }, (table) => ({
+    scoreIdx: index('roasts_score_idx').on(table.score),
+    createdAtIdx: index('roasts_created_at_idx').on(table.createdAt),
+  }))
   ```
 
 ---
@@ -383,6 +386,7 @@ const newRoast: NewRoast = {
   language: 'javascript',
   score: 7.5,
   verdict: 'good',
+  suggestedFix: 'const x = 1', // Fixed code version
 }
 
 await db.insert(roasts).values(newRoast)
