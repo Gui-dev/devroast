@@ -31,13 +31,11 @@ const CodeEditorContent = forwardRef<HTMLDivElement, CodeEditorContentProps>(
       highlight()
     }, [displayCode, lang])
 
-    const lines = displayCode.split('\n')
-
     return (
-      <div ref={ref} className={cn('flex', className)} {...props}>
+      <div ref={ref} className={cn('flex min-h-[240px]', className)} {...props}>
         {showLineNumbers && (
           <div className="flex w-10 flex-col border-r border-border-primary bg-bg-surface py-3 pr-4 font-mono text-[13px] leading-normal text-text-tertiary">
-            {lines.map((_, i) => (
+            {Array.from({ length: 10 }).map((_, i) => (
               <span key={`line-${i + 1}`} className="w-full text-right">
                 {i + 1}
               </span>
@@ -47,7 +45,7 @@ const CodeEditorContent = forwardRef<HTMLDivElement, CodeEditorContentProps>(
         <div
           className={cn(
             'min-w-0 flex-1 overflow-x-auto bg-bg-page px-4 py-3',
-            '[&>pre]:!bg-transparent [&>pre]:!p-0',
+            '[&>pre]:!bg-transparent [&>pre]:!p-0 [&>pre]:min-h-[200px]',
             isPlaceholder && 'text-text-tertiary'
           )}
           dangerouslySetInnerHTML={{ __html: highlightedHtml }}
