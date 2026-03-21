@@ -2,334 +2,416 @@
 
 ## Context
 
-This document outlines the database schema and implementation plan for adding persistent storage to Devroast using Drizzle ORM with PostgreSQL.
+This document outlines the database schema design for the Devroast application using Drizzle ORM with PostgreSQL. The schema supports code roasting, analysis, leaderboard, and user management features.
 
-## Technology Stack
+## Data Model Overview
 
-| Technology | Purpose |
-|------------|---------|
-| [Drizzle ORM](https://orm.drizzle.team/) | Type-safe database ORM |
-| [PostgreSQL](https://www.postgresql.org/) | Relational database |
-| [Docker Compose](https://docs.docker.com/compose/) | Database containerization |
+Based on the application screens:
 
-## Features to Support
+1. **Screen 1 - Code Input**: Users paste code for analysis
+2. **Screen 2 - Roast Results**: Display score, verdict, issues, and diffs
+3. **Screen 3 - Leaderboard**: Ranked list of roasted code
+4. **Screen 4 - OG Image**: Social sharing with score preview
 
-Based on the current implementation and README:
+---
 
-1. **Code Submission** - Users paste code and get roasted
-2. **Scoring System** - Code receives a score (0-10)
-3. **Leaderboard** - Display top "worst" code
-4. **Feedback Cards** - Display roast results with issues
+## Enums
 
-## Database Schema
-
-### Tables Overview
-
-```
-┌─────────────────┐
-│     users       │
-├─────────────────┤
-│ roast_submissions│
-├─────────────────┤
-│     issues      │
-└─────────────────┘
-```
-
-### Enums
+### Programming Language
 
 ```typescript
-// Language enum - supported programming languages
-export const languages = ['javascript', 'typescript', 'python', 'go', 'rust', 'java', 'cpp', 'css', 'html', 'json'] as const
+export const programmingLanguages = [
+  'javascript',
+  'typescript',
+  'python',
+  'go',
+  'rust',
+  'java',
+  'cpp',
+  'css',
+  'html',
+  'json',
+] as const
 
-// Roast mode enum
-export const roastModes = ['brutally_honest', 'roast_mode'] as const
-
-// Issue severity enum
-export const issueSeverities = ['critical', 'warning', 'good', 'needs_serious_help'] as const
+export type ProgrammingLanguage = typeof programmingLanguages[number]
 ```
 
-### Tables
+### Verdict
 
-#### 1. `users` (Future - Optional for MVP)
+Score-based verdict classification:
 
 ```typescript
-// users table - for authenticated users (optional feature)
-export const users = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  email: varchar('email', { length: 255 }).unique().notNull(),
-  username: varchar('username', { length: 50 }).unique().notNull(),
+export const verdicts = ['critical', 'warning', 'good', 'needs_serious_help'] as const
+export type Verdict = typeof verdicts[number]
+```
+
+**Score Ranges:**
+
+| Verdict | Score Range |
+|---------|-------------|
+| critical | 0.0 - 2.9 |
+| warning | 3.0 - 5.9 |
+| good | 6.0 - 7.9 |
+| needs_serious_help | 8.0 - 10.0 |
+
+### Roast Mode
+
+```typescript
+export const roastModes = ['honest', 'roast'] as const
+export type RoastMode = typeof roastModes[number]
+```
+
+- `honest`: Professional feedback
+- `roast`: Maximum sarcasm enabled
+
+---
+
+## Tables
+
+### 1. Users
+
+Optional user table for tracking personal roasts.
+
+```typescript
+export const users = sqliteTable('users', {
+  id: text('id').primaryKey(), // UUID or auth provider ID
+  email: text('email').unique(),
+  username: text('username').unique(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 ```
 
-**Fields:**
+### 2. Roasts
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `id` | UUID | PK, DEFAULT uuid_generate_v4() | Unique identifier |
-| `email` | VARCHAR(255) | UNIQUE, NOT NULL | User email |
-| `username` | VARCHAR(50) | UNIQUE, NOT NULL | Display name |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Creation timestamp |
-| `updated_at` | TIMESTAMP | DEFAULT NOW() | Last update |
-
-#### 2. `roast_submissions`
+Core table storing roasted code submissions.
 
 ```typescript
-// roast_submissions table - stores code submissions
-export const roastSubmissions = pgTable('roast_submissions', {
-  id: uuid('id').primaryKey().defaultRandom(),
+export const roasts = sqliteTable('roasts', {
+  id: text('id').primaryKey(), // UUID
+  userId: text('user_id').references(() => users.id), // Optional - null for anonymous
+
+  // Code information
   code: text('code').notNull(),
-  language: varchar('language', { length: 50 }).notNull().default('javascript'),
-  roastMode: varchar('roast_mode', { length: 50 }).notNull().default('roast_mode'),
-  totalScore: decimal('total_score', { precision: 3, scale: 1 }).notNull(),
-  userId: uuid('user_id').references(() => users.id),
+  language: text('language').$type<ProgrammingLanguage>().notNull(),
+  lineCount: integer('line_count').notNull(),
+
+  // Analysis results
+  score: real('score').notNull(), // 0.0 - 10.0
+  verdict: text('verdict').$type<Verdict>().notNull(),
+  roastQuote: text('roast_quote'), // Sarcastic quote
+  roastMode: text('roast_mode').$type<RoastMode>().default('roast').notNull(),
+
+  // Metadata
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 ```
 
-**Fields:**
+### 3. Analysis Issues
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `id` | UUID | PK | Unique submission ID |
-| `code` | TEXT | NOT NULL | The submitted code |
-| `language` | VARCHAR(50) | NOT NULL, DEFAULT 'javascript' | Programming language |
-| `roast_mode` | VARCHAR(50) | NOT NULL | roast_mode or brutally_honest |
-| `total_score` | DECIMAL(3,1) | NOT NULL | Overall score (0.0 - 10.0) |
-| `user_id` | UUID | FK → users.id | Optional user reference |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Submission time |
-
-**Indexes:**
-
-- `idx_roast_submissions_score` ON (`total_score`) - For leaderboard queries
-- `idx_roast_submissions_created_at` ON (`created_at` DESC) - For recent submissions
-- `idx_roast_submissions_language` ON (`language`) - For filtering by language
-
-#### 3. `issues`
+Issues found during code analysis.
 
 ```typescript
-// issues table - stores individual issues found in code
-export const issues = pgTable('issues', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  submissionId: uuid('submission_id').references(() => roastSubmissions.id).notNull(),
-  title: varchar('title', { length: 255 }).notNull(),
+export const analysisIssues = sqliteTable('analysis_issues', {
+  id: text('id').primaryKey(),
+  roastId: text('roast_id').references(() => roasts.id).notNull(),
+
+  // Issue details
+  title: text('title').notNull(),
   description: text('description').notNull(),
-  severity: varchar('severity', { length: 50 }).notNull(), // critical, warning, good, needs_serious_help
-  lineStart: integer('line_start'),
-  lineEnd: integer('line_end'),
+  severity: text('severity').$type<Verdict>().notNull(),
+  issueType: text('issue_type').notNull(), // e.g., 'var_vs_const', 'missing_error_handling'
+
+  // Code location
+  lineNumber: integer('line_number'),
+
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 ```
 
-**Fields:**
+### 4. Code Diffs
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `id` | UUID | PK | Issue ID |
-| `submission_id` | UUID | FK, NOT NULL | Parent submission |
-| `title` | VARCHAR(255) | NOT NULL | Issue title |
-| `description` | TEXT | NOT NULL | Detailed explanation |
-| `severity` | VARCHAR(50) | NOT NULL | critical/warning/good/needs_serious_help |
-| `line_start` | INTEGER | NULL | Start line number |
-| `line_end` | INTEGER | NULL | End line number |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Creation time |
+Suggested improvements with before/after code.
 
-**Indexes:**
+```typescript
+export const codeDiffs = sqliteTable('code_diffs', {
+  id: text('id').primaryKey(),
+  roastId: text('roast_id').references(() => roasts.id).notNull(),
 
-- `idx_issues_submission_id` ON (`submission_id`) - For joining with submissions
-- `idx_issues_severity` ON (`severity`) - For filtering by severity
+  // Diff content
+  removedLine: text('removed_line'), // null for additions
+  addedLine: text('added_line'), // null for removals
+  context: text('context'), // Surrounding code context
 
-## Relationships
+  // Position
+  lineNumber: integer('line_number'),
+
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+```
+
+### 5. Leaderboard
+
+Pre-computed rankings for efficient queries.
+
+```typescript
+export const leaderboard = sqliteTable('leaderboard', {
+  id: text('id').primaryKey(),
+  roastId: text('roast_id').references(() => roasts.id).notNull(),
+
+  // Ranking info
+  rank: integer('rank').notNull(),
+  score: real('score').notNull(),
+  language: text('language').$type<ProgrammingLanguage>().notNull(),
+
+  // For leaderboard display
+  codePreview: text('code_preview').notNull(), // First N chars of code
+
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+```
+
+---
+
+## Entity Relationship Diagram
 
 ```
-users (1) ─────< (N) roast_submissions
-roast_submissions (1) ─────< (N) issues
+┌─────────────┐       ┌─────────────┐
+│    users    │       │    roasts   │
+├─────────────┤       ├─────────────┤
+│ id (PK)     │───┐   │ id (PK)     │
+│ email       │   │   │ user_id (FK)│
+│ username    │   └───►│ code        │
+│ created_at  │       │ language    │
+└─────────────┘       │ score       │
+                      │ verdict     │
+                      │ roast_quote │
+                      │ roast_mode  │
+                      │ created_at  │
+                      └──────┬──────┘
+                             │
+         ┌───────────────────┼───────────────────┐
+         │                   │                   │
+         ▼                   ▼                   ▼
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│ analysis_issues │ │    code_diffs   │ │   leaderboard   │
+├─────────────────┤ ├─────────────────┤ ├─────────────────┤
+│ id (PK)         │ │ id (PK)         │ │ id (PK)         │
+│ roast_id (FK)   │ │ roast_id (FK)   │ │ roast_id (FK)   │
+│ title           │ │ removed_line    │ │ rank            │
+│ description     │ │ added_line     │ │ score           │
+│ severity        │ │ context        │ │ language        │
+│ issue_type      │ │ line_number    │ │ code_preview    │
+│ line_number     │ │ created_at     │ │ updated_at      │
+│ created_at      │ └─────────────────┘ └─────────────────┘
+└─────────────────┘
 ```
+
+---
 
 ## Implementation Checklist
 
-### Phase 1: Database Setup
+### Phase 1: Setup
 
-- [ ] Install Drizzle ORM and PostgreSQL driver
-- [ ] Install `drizzle-kit` for migrations
-- [ ] Create `docker-compose.yml` with PostgreSQL
-- [ ] Create `.env` with database URL
-- [ ] Create drizzle config file
+- [ ] Install Drizzle ORM dependencies
+  ```bash
+  pnpm add drizzle-orm
+  pnpm add -D drizzle-kit @types/pg
+  ```
 
-### Phase 2: Schema Definition
+- [ ] Create Docker Compose configuration
+  ```yaml
+  # docker-compose.yml
+  version: '3.8'
+  services:
+    postgres:
+      image: postgres:16-alpine
+      environment:
+        POSTGRES_USER: devroast
+        POSTGRES_PASSWORD: devroast
+        POSTGRES_DB: devroast
+      ports:
+        - '5432:5432'
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
 
-- [ ] Create `apps/web/src/db/` directory
-- [ ] Create `schema.ts` with all tables and enums
-- [ ] Create `index.ts` for exports
-- [ ] Export types for TypeScript usage
+  volumes:
+    postgres_data:
+  ```
 
-### Phase 3: Database Connection
+- [ ] Create Drizzle configuration file
+  ```typescript
+  // drizzle.config.ts
+  import { defineConfig } from 'drizzle-kit'
 
-- [ ] Create `db.ts` for database connection
-- [ ] Set up connection pool
-- [ ] Add error handling
-- [ ] Test connection
-
-### Phase 4: Migrations
-
-- [ ] Create initial migration with drizzle-kit
-- [ ] Run migration script
-- [ ] Verify tables created
-
-### Phase 5: API Integration (Future)
-
-- [ ] Create API route for submissions
-- [ ] Create API route for leaderboard
-- [ ] Connect with code analysis logic
-- [ ] Update homepage to fetch from DB
-
-## File Structure
-
-```
-devroast/
-├── apps/
-│   └── web/
-│       └── src/
-│           └── db/
-│               ├── schema.ts      # Database schema
-│               ├── index.ts       # Schema exports
-│               ├── db.ts          # Database connection
-│               └── migrations/    # Drizzle migrations
-│
-├── docker-compose.yml             # PostgreSQL container
-├── .env                           # Environment variables
-└── drizzle.config.ts             # Drizzle configuration
-```
-
-## Docker Compose Configuration
-
-```yaml
-version: '3.8'
-
-services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: devroast-db
-    environment:
-      POSTGRES_USER: devroast
-      POSTGRES_PASSWORD: devroast
-      POSTGRES_DB: devroast
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
-```
-
-## Environment Variables
-
-```env
-# Database
-DATABASE_URL=postgresql://devroast:devroast@localhost:5432/devroast
-```
-
-## Dependencies
-
-```bash
-# Install Drizzle ORM and PostgreSQL driver
-pnpm add drizzle-orm pg
-
-# Install Drizzle Kit for migrations
-pnpm add -D drizzle-kit @types/pg
-```
-
-## Drizzle Config
-
-```typescript
-// drizzle.config.ts
-import { defineConfig } from 'drizzle-kit'
-
-export default defineConfig({
-  schema: './apps/web/src/db/schema.ts',
-  out: './apps/web/src/db/migrations',
-  dialect: 'postgresql',
-  dbCredentials: {
-    url: process.env.DATABASE_URL!,
-  },
-})
-```
-
-## Usage Examples
-
-### Query Leaderboard (Top 10 Worst Scores)
-
-```typescript
-import { db } from './db'
-import { roastSubmissions } from './db/schema'
-import { asc } from 'drizzle-orm'
-
-const leaderboard = await db
-  .select({
-    id: roastSubmissions.id,
-    language: roastSubmissions.language,
-    score: roastSubmissions.totalScore,
-    createdAt: roastSubmissions.createdAt,
+  export default defineConfig({
+    schema: './src/db/schema.ts',
+    out: './drizzle',
+    dialect: 'postgresql',
+    dbCredentials: {
+      url: process.env.DATABASE_URL!,
+    },
   })
-  .from(roastSubmissions)
-  .orderBy(asc(roastSubmissions.totalScore))
-  .limit(10)
-```
+  ```
 
-### Insert New Submission
+- [ ] Set up environment variables
+  ```env
+  # .env.local
+  DATABASE_URL=postgresql://devroast:devroast@localhost:5432/devroast
+  ```
 
-```typescript
-import { db } from './db'
-import { roastSubmissions } from './db/schema'
+### Phase 2: Database Schema
 
-await db.insert(roastSubmissions).values({
-  code: 'const x = 1;',
-  language: 'javascript',
-  roastMode: 'roast_mode',
-  totalScore: 7.5,
-})
-```
+- [ ] Create `src/db/` directory structure
+  ```
+  src/db/
+  ├── index.ts           # Database connection
+  ├── schema.ts          # All tables and enums
+  └── migrations/        # Generated migrations
+  ```
 
-### Get Submission with Issues
+- [ ] Create database connection module
+  ```typescript
+  // src/db/index.ts
+  import { drizzle } from 'drizzle-orm/node-postgres'
+  import { Pool } from 'pg'
+  import * as schema from './schema'
 
-```typescript
-import { db } from './db'
-import { roastSubmissions, issues } from './db/schema'
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+  })
 
-const submissionWithIssues = await db
-  .select()
-  .from(roastSubmissions)
-  .leftJoin(issues, eq(issues.submissionId, roastSubmissions.id))
-  .where(eq(roastSubmissions.id, submissionId))
-```
+  export const db = drizzle(pool, { schema })
+  export type Database = typeof db
+  ```
 
-## Notes
+- [ ] Create schema file with all tables and enums
+- [ ] Generate initial migration
+  ```bash
+  npx drizzle-kit generate
+  ```
 
-1. **MVP Scope**: For the initial implementation, we may not need the `users` table - submissions can be anonymous
-2. **Score Calculation**: The scoring algorithm is not yet defined; `totalScore` is a placeholder
-3. **Code Analysis**: The actual code analysis/roasting logic will be implemented separately
-4. **Migrations**: Use `drizzle-kit generate` to create migrations and `drizzle-kit push` or `migrate` to apply
+### Phase 3: CRUD Operations
 
-## CLI Commands
+- [ ] Create repository pattern for each table
+  ```
+  src/db/
+  ├── repositories/
+  │   ├── roasts.ts
+  │   ├── analysis-issues.ts
+  │   ├── code-diffs.ts
+  │   └── leaderboard.ts
+  ```
+
+- [ ] Implement roast repository
+  - `createRoast(data)`
+  - `getRoastById(id)`
+  - `getRoastsByUserId(userId)`
+  - `getRecentRoasts(limit)`
+
+- [ ] Implement leaderboard repository
+  - `getTopRoasts(limit)`
+  - `updateLeaderboard()`
+  - `getRoastRank(roastId)`
+
+### Phase 4: Integration
+
+- [ ] Create API routes for roasts
+  ```
+  src/app/api/
+  ├── roasts/
+  │   ├── route.ts        # POST - create roast
+  │   └── [id]/
+  │       └── route.ts    # GET - get roast by ID
+  └── leaderboard/
+      └── route.ts        # GET - top roasts
+  ```
+
+- [ ] Update homepage to fetch roasts from database
+- [ ] Update leaderboard page to fetch from database
+- [ ] Add database stats to homepage (2,847 codes roasted, avg score)
+
+### Phase 5: Leaderboard Optimization
+
+- [ ] Create cron job or trigger to update leaderboard
+- [ ] Add database indexes for performance
+  ```typescript
+  // Add to schema
+  roasts = sqliteTable('roasts', {
+    // ... fields
+    score: integer('score').notNull().index(),
+    createdAt: integer('created_at').notNull().index(),
+  })
+  ```
+
+---
+
+## Environment Setup
+
+### Development
 
 ```bash
-# Generate migration
-pnpm drizzle-kit generate
+# Start PostgreSQL
+docker compose up -d
 
-# Push schema to database (dev)
-pnpm drizzle-kit push
+# Run migrations
+npx drizzle-kit push
 
-# Run migrations (production)
-pnpm drizzle-kit migrate
-
-# Studio (GUI for database)
-pnpm drizzle-kit studio
+# Or use migrate command
+npx drizzle-kit migrate
 ```
 
-## References
+### Production
 
-- [Drizzle ORM Docs](https://orm.drizzle.team/docs/overview)
-- [Drizzle Kit](https://orm.drizzle.team/docs/drizzle-kit)
-- [PostgreSQL with Drizzle](https://orm.drizzle.team/docs/postgresql)
+Set `DATABASE_URL` environment variable with your production PostgreSQL connection string.
+
+---
+
+## Type Safety
+
+All types are derived from the schema:
+
+```typescript
+import { db } from './db'
+import { roasts, type Roast, type NewRoast } from './schema'
+
+// Type-safe inserts
+const newRoast: NewRoast = {
+  id: crypto.randomUUID(),
+  code: 'const x = 1',
+  language: 'javascript',
+  score: 7.5,
+  verdict: 'good',
+}
+
+await db.insert(roasts).values(newRoast)
+
+// Type-safe queries
+const roast = await db.select().from(roasts).where(eq(roasts.id, id))
+```
+
+---
+
+## Migrations
+
+Drizzle uses migration files for schema changes:
+
+```bash
+# Generate migration after schema changes
+npx drizzle-kit generate
+
+# Apply migrations
+npx drizzle-kit migrate
+
+# Push schema (development only - bypasses migrations)
+npx drizzle-kit push
+```
+
+---
+
+## Related Documentation
+
+- [Drizzle ORM Documentation](https://orm.drizzle.team/)
+- [Drizzle Kit CLI](https://orm.drizzle.team/kit-docs/overview)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
