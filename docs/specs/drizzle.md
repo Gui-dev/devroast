@@ -68,17 +68,19 @@ export type RoastMode = typeof roastModes[number]
 
 ## Tables
 
+> **Note:** Column names use camelCase. Drizzle config (`casing: 'camelCase'`) auto-converts to snake_case in database.
+
 ### 1. Users
 
 Optional user table for tracking personal roasts.
 
 ```typescript
 export const users = pgTable('users', {
-  id: text('id').primaryKey(), // UUID or auth provider ID
+  id: text('id').primaryKey(),
   email: text('email').unique(),
   username: text('username').unique(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 })
 ```
 
@@ -88,24 +90,24 @@ Core table storing roasted code submissions.
 
 ```typescript
 export const roasts = pgTable('roasts', {
-  id: text('id').primaryKey(), // UUID
-  userId: text('user_id').references(() => users.id), // Optional - null for anonymous
+  id: text('id').primaryKey(),
+  userId: text('userId'), // Optional - null for anonymous
 
   // Code information
   code: text('code').notNull(),
   language: text('language').$type<ProgrammingLanguage>().notNull(),
-  lineCount: integer('line_count').notNull(),
+  lineCount: integer('lineCount').notNull(),
 
   // Analysis results
   score: real('score').notNull(), // 0.0 - 10.0
   verdict: text('verdict').$type<Verdict>().notNull(),
-  roastQuote: text('roast_quote'), // Sarcastic quote
-  roastMode: text('roast_mode').$type<RoastMode>().default('roast').notNull(),
-  suggestedFix: text('suggested_fix'), // Complete fixed code version
+  roastQuote: text('roastQuote'),
+  roastMode: text('roastMode').default('roast').notNull(),
+  suggestedFix: text('suggestedFix'),
 
   // Metadata
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 })
 ```
 
@@ -114,20 +116,20 @@ export const roasts = pgTable('roasts', {
 Issues found during code analysis.
 
 ```typescript
-export const analysisIssues = pgTable('analysis_issues', {
+export const analysisIssues = pgTable('analysisIssues', {
   id: text('id').primaryKey(),
-  roastId: text('roast_id').references(() => roasts.id).notNull(),
+  roastId: text('roastId').notNull(),
 
   // Issue details
   title: text('title').notNull(),
   description: text('description').notNull(),
   severity: text('severity').$type<Verdict>().notNull(),
-  issueType: text('issue_type').notNull(), // e.g., 'var_vs_const', 'missing_error_handling'
+  issueType: text('issueType').notNull(),
 
   // Code location
-  lineNumber: integer('line_number'),
+  lineNumber: integer('lineNumber'),
 
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
 })
 ```
 
@@ -136,19 +138,19 @@ export const analysisIssues = pgTable('analysis_issues', {
 Suggested improvements with before/after code (line-by-line changes).
 
 ```typescript
-export const codeDiffs = pgTable('code_diffs', {
+export const codeDiffs = pgTable('codeDiffs', {
   id: text('id').primaryKey(),
-  roastId: text('roast_id').references(() => roasts.id).notNull(),
+  roastId: text('roastId').notNull(),
 
   // Diff content
-  removedLine: text('removed_line'), // null for additions
-  addedLine: text('added_line'), // null for removals
-  context: text('context'), // Surrounding code context
+  removedLine: text('removedLine'),
+  addedLine: text('addedLine'),
+  context: text('context'),
 
   // Position
-  lineNumber: integer('line_number'),
+  lineNumber: integer('lineNumber'),
 
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
 })
 ```
 
@@ -159,7 +161,7 @@ Pre-computed rankings for efficient queries.
 ```typescript
 export const leaderboard = pgTable('leaderboard', {
   id: text('id').primaryKey(),
-  roastId: text('roast_id').references(() => roasts.id).notNull(),
+  roastId: text('roastId').notNull(),
 
   // Ranking info
   rank: integer('rank').notNull(),
@@ -167,9 +169,9 @@ export const leaderboard = pgTable('leaderboard', {
   language: text('language').$type<ProgrammingLanguage>().notNull(),
 
   // For leaderboard display
-  codePreview: text('code_preview').notNull(), // First N chars of code
+  codePreview: text('codePreview').notNull(),
 
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 })
 ```
 
@@ -182,31 +184,31 @@ export const leaderboard = pgTable('leaderboard', {
 │    users    │       │    roasts   │
 ├─────────────┤       ├─────────────┤
 │ id (PK)     │───┐   │ id (PK)     │
-│ email       │   │   │ user_id (FK)│
+│ email       │   │   │ userId      │
 │ username    │   └───►│ code        │
-│ created_at  │       │ language    │
+│ createdAt   │       │ language    │
 └─────────────┘       │ score       │
                       │ verdict     │
-                      │ roast_quote │
-                      │ roast_mode  │
-                      │ suggested_fix│
-                      │ created_at  │
+                      │ roastQuote │
+                      │ roastMode  │
+                      │ suggestedFix│
+                      │ createdAt  │
                       └──────┬──────┘
                              │
          ┌───────────────────┼───────────────────┐
          │                   │                   │
          ▼                   ▼                   ▼
 ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│ analysis_issues │ │    code_diffs   │ │   leaderboard   │
+│ analysisIssues  │ │    codeDiffs    │ │   leaderboard   │
 ├─────────────────┤ ├─────────────────┤ ├─────────────────┤
-│ id (PK)         │ │ id (PK)         │ │ id (PK)         │
-│ roast_id (FK)   │ │ roast_id (FK)   │ │ roast_id (FK)   │
-│ title           │ │ removed_line    │ │ rank            │
-│ description     │ │ added_line     │ │ score           │
-│ severity        │ │ context        │ │ language        │
-│ issue_type      │ │ line_number    │ │ code_preview    │
-│ line_number     │ │ created_at     │ │ updated_at      │
-│ created_at      │ └─────────────────┘ └─────────────────┘
+│ id (PK)        │ │ id (PK)         │ │ id (PK)         │
+│ roastId        │ │ roastId         │ │ roastId         │
+│ title          │ │ removedLine     │ │ rank            │
+│ description    │ │ addedLine      │ │ score           │
+│ severity       │ │ context        │ │ language        │
+│ issueType      │ │ lineNumber    │ │ codePreview    │
+│ lineNumber     │ │ createdAt     │ │ updatedAt      │
+│ createdAt      │ └─────────────────┘ └─────────────────┘
 └─────────────────┘
 ```
 
@@ -251,6 +253,7 @@ export const leaderboard = pgTable('leaderboard', {
     schema: './src/db/schema.ts',
     out: './drizzle',
     dialect: 'postgresql',
+    casing: 'camelCase', // Auto-converts camelCase → snake_case
     dbCredentials: {
       url: process.env.DATABASE_URL!,
     },
@@ -296,14 +299,16 @@ export const leaderboard = pgTable('leaderboard', {
 
 ### Phase 3: CRUD Operations
 
+> **Note:** Queries use manual SQL/JOIN without Drizzle relations.
+
 - [ ] Create repository pattern for each table
   ```
   src/db/
   ├── repositories/
-  │   ├── roasts.ts
-  │   ├── analysis-issues.ts
-  │   ├── code-diffs.ts
-  │   └── leaderboard.ts
+  │   ├── roast.repository.ts
+  │   ├── analysis-issue.repository.ts
+  │   ├── code-diff.repository.ts
+  │   └── leaderboard.repository.ts
   ```
 
 - [ ] Implement roast repository
@@ -316,6 +321,21 @@ export const leaderboard = pgTable('leaderboard', {
   - `getTopRoasts(limit)`
   - `updateLeaderboard()`
   - `getRoastRank(roastId)`
+
+- [ ] Example manual query with JOIN
+  ```typescript
+  // Query with manual JOIN (no relations)
+  import { sql } from 'drizzle-orm'
+  import { db } from '../index.js'
+  import { roasts, users } from '../schema.js'
+
+  const result = await db.execute(sql`
+    SELECT r.*, u.username 
+    FROM roasts r 
+    LEFT JOIN users u ON r."userId" = u.id 
+    WHERE r.id = ${id}
+  `)
+  ```
 
 ### Phase 4: Integration
 
@@ -337,15 +357,10 @@ export const leaderboard = pgTable('leaderboard', {
 ### Phase 5: Leaderboard Optimization
 
 - [ ] Create cron job or trigger to update leaderboard
-- [ ] Add database indexes for performance
-  ```typescript
-  // Add to schema (using pgTable)
-  export const roasts = pgTable('roasts', {
-    // ... fields
-  }, (table) => ({
-    scoreIdx: index('roasts_score_idx').on(table.score),
-    createdAtIdx: index('roasts_created_at_idx').on(table.createdAt),
-  }))
+- [ ] Add index on `score` column for leaderboard queries (only if needed)
+  ```sql
+  -- Only add if leaderboard queries are slow
+  CREATE INDEX idx_leaderboard_score ON leaderboard(score DESC);
   ```
 
 ---
@@ -386,7 +401,7 @@ const newRoast: NewRoast = {
   language: 'javascript',
   score: 7.5,
   verdict: 'good',
-  suggestedFix: 'const x = 1', // Fixed code version
+  suggestedFix: 'const x = 1',
 }
 
 await db.insert(roasts).values(newRoast)
