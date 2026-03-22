@@ -1,12 +1,17 @@
 import type {
   AnalysisIssueContract,
   CodeDiffContract,
+  CreateAnalysisIssueInput,
+  CreateCodeDiffInput,
+  CreateLeaderboardEntryInput,
+  LeaderboardContract,
   RoastContract,
 } from '../../contracts/roast.contract.js'
 import type {
   AnalysisIssue,
   CodeDiff,
   CreateRoastInput,
+  LeaderboardEntry,
   Roast,
   UpdateRoastInput,
 } from '../../entities/roast.entity.js'
@@ -67,14 +72,15 @@ export class InMemoryRoastRepository implements RoastContract {
 export class InMemoryAnalysisIssueRepository implements AnalysisIssueContract {
   private issues: AnalysisIssue[] = []
 
-  async create(
-    roastId: string,
-    issue: Omit<AnalysisIssue, 'id' | 'roastId' | 'createdAt'>
-  ): Promise<AnalysisIssue> {
+  async create(roastId: string, issue: CreateAnalysisIssueInput): Promise<AnalysisIssue> {
     const newIssue: AnalysisIssue = {
       id: crypto.randomUUID(),
       roastId,
-      ...issue,
+      title: issue.title,
+      description: issue.description,
+      severity: issue.severity,
+      issueType: issue.issueType,
+      lineNumber: issue.lineNumber ?? null,
       createdAt: new Date(),
     }
     this.issues.push(newIssue)
@@ -89,14 +95,14 @@ export class InMemoryAnalysisIssueRepository implements AnalysisIssueContract {
 export class InMemoryCodeDiffRepository implements CodeDiffContract {
   private diffs: CodeDiff[] = []
 
-  async create(
-    roastId: string,
-    diff: Omit<CodeDiff, 'id' | 'roastId' | 'createdAt'>
-  ): Promise<CodeDiff> {
+  async create(roastId: string, diff: CreateCodeDiffInput): Promise<CodeDiff> {
     const newDiff: CodeDiff = {
       id: crypto.randomUUID(),
       roastId,
-      ...diff,
+      removedLine: diff.removedLine ?? null,
+      addedLine: diff.addedLine ?? null,
+      context: diff.context ?? null,
+      lineNumber: diff.lineNumber ?? null,
       createdAt: new Date(),
     }
     this.diffs.push(newDiff)
@@ -105,5 +111,32 @@ export class InMemoryCodeDiffRepository implements CodeDiffContract {
 
   async findByRoastId(roastId: string): Promise<CodeDiff[]> {
     return this.diffs.filter(d => d.roastId === roastId)
+  }
+}
+
+export class InMemoryLeaderboardRepository implements LeaderboardContract {
+  private entries: LeaderboardEntry[] = []
+
+  async create(data: CreateLeaderboardEntryInput): Promise<LeaderboardEntry> {
+    const entry: LeaderboardEntry = {
+      id: crypto.randomUUID(),
+      roastId: data.roastId,
+      rank: data.rank,
+      score: data.score,
+      language: data.language,
+      codePreview: data.codePreview,
+      updatedAt: new Date(),
+    }
+    this.entries.push(entry)
+    return entry
+  }
+
+  async getTopRoasts(limit?: number): Promise<LeaderboardEntry[]> {
+    const sorted = [...this.entries].sort((a, b) => a.rank - b.rank)
+    return limit ? sorted.slice(0, limit) : sorted
+  }
+
+  async getRankByRoastId(roastId: string): Promise<LeaderboardEntry | null> {
+    return this.entries.find(e => e.roastId === roastId) ?? null
   }
 }

@@ -9,12 +9,22 @@ Este é um monorepo Turbo Repo com Next.js para o projeto Devroast.
 ```
 devroast/
 ├── apps/
-│   └── web/                    # Next.js App
+│   ├── api/                    # Fastify API
+│   │   ├── src/
+│   │   │   ├── db/            # Drizzle schema e conexão
+│   │   │   ├── contracts/     # Interfaces de repositórios
+│   │   │   ├── entities/      # Tipos de domínio
+│   │   │   ├── repositories/  # Implementações (Drizzle + InMemory)
+│   │   │   ├── use-cases/     # Lógica de negócio
+│   │   │   └── routes/        # Rotas Fastify
+│   │   └── drizzle.config.ts
+│   └── web/                   # Next.js App
 │       └── src/
 │           ├── app/            # App Router (pages, layouts)
 │           ├── components/     # Componentes React
 │           │   └── ui/         # Componentes de UI genéricos
 │           └── lib/            # Utilitários
+├── docker-compose.yml          # PostgreSQL (raiz do monorepo)
 ├── docs/                       # Documentação e guidelines
 │   └── skills/                 # Skills para agentes
 ├── packages/                   # Pacotes compartilhados (futuro)
@@ -42,9 +52,26 @@ devroast/
 ## Scripts Disponíveis
 
 ```bash
-pnpm dev          # Desenvolvimento
+# Desenvolvimento
+pnpm dev          # Inicia todos os apps em watch mode
+pnpm dev:api      # Apenas API (porta 3333)
+pnpm dev:web      # Apenas Web (porta 3000)
+
+# Build e Lint
 pnpm build        # Build de produção
 pnpm lint         # Verificar código (Biome)
 pnpm format       # Formatar código
+
+# Database (API)
+pnpm --filter api db:push        # Push schema para DB
+pnpm --filter api db:studio     # Abrir Drizzle Studio
+
+# Docker
+docker-compose up -d    # Iniciar PostgreSQL
+docker-compose down     # Parar PostgreSQL
+docker-compose logs -f  # Ver logs do Postgres
+
+# Testes
+pnpm test         # Rodar todos os testes
 pnpm clean        # Limpar cache
 ```

@@ -25,12 +25,12 @@ export interface Roast {
   id: string
   userId: string | null
   code: string
-  language: ProgrammingLanguage
+  language: string
   lineCount: number
   score: number
-  verdict: Verdict
+  verdict: string
   roastQuote: string | null
-  roastMode: RoastMode
+  roastMode: string
   suggestedFix: string | null
   createdAt: Date
   updatedAt: Date
@@ -41,7 +41,7 @@ export interface AnalysisIssue {
   roastId: string
   title: string
   description: string
-  severity: Verdict
+  severity: string
   issueType: string
   lineNumber: number | null
   createdAt: Date
@@ -62,7 +62,7 @@ export interface LeaderboardEntry {
   roastId: string
   rank: number
   score: number
-  language: ProgrammingLanguage
+  language: string
   codePreview: string
   updatedAt: Date
 }
@@ -70,13 +70,13 @@ export interface LeaderboardEntry {
 export interface CreateRoastInput {
   userId?: string
   code: string
-  language: ProgrammingLanguage
-  roastMode?: RoastMode
+  language: string
+  roastMode?: string
 }
 
 export interface UpdateRoastInput {
   score?: number
-  verdict?: Verdict
+  verdict?: string
   roastQuote?: string
   suggestedFix?: string
 }

@@ -15,20 +15,41 @@ export interface RoastContract {
   delete(id: string): Promise<boolean>
 }
 
+export interface CreateAnalysisIssueInput {
+  title: string
+  description: string
+  severity: string
+  issueType: string
+  lineNumber?: number | null
+}
+
 export interface AnalysisIssueContract {
-  create(
-    roastId: string,
-    issue: Omit<AnalysisIssue, 'id' | 'roastId' | 'createdAt'>
-  ): Promise<AnalysisIssue>
+  create(roastId: string, issue: CreateAnalysisIssueInput): Promise<AnalysisIssue>
   findByRoastId(roastId: string): Promise<AnalysisIssue[]>
 }
 
+export interface CreateCodeDiffInput {
+  removedLine?: string | null
+  addedLine?: string | null
+  context?: string | null
+  lineNumber?: number | null
+}
+
 export interface CodeDiffContract {
-  create(roastId: string, diff: Omit<CodeDiff, 'id' | 'roastId' | 'createdAt'>): Promise<CodeDiff>
+  create(roastId: string, diff: CreateCodeDiffInput): Promise<CodeDiff>
   findByRoastId(roastId: string): Promise<CodeDiff[]>
 }
 
+export interface CreateLeaderboardEntryInput {
+  roastId: string
+  rank: number
+  score: number
+  language: string
+  codePreview: string
+}
+
 export interface LeaderboardContract {
+  create(data: CreateLeaderboardEntryInput): Promise<LeaderboardEntry>
   getTopRoasts(limit?: number): Promise<LeaderboardEntry[]>
   getRankByRoastId(roastId: string): Promise<LeaderboardEntry | null>
 }
