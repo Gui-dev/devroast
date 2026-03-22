@@ -1,4 +1,5 @@
 import { cn } from '@/lib/cn'
+import { getScoreColor } from '@/lib/get-score-color'
 import { type HTMLAttributes, forwardRef } from 'react'
 
 export type ScoreRingProps = HTMLAttributes<HTMLDivElement> & {
@@ -14,12 +15,7 @@ const ScoreRing = forwardRef<HTMLDivElement, ScoreRingProps>(
     const circumference = 2 * Math.PI * radius
     const progress = Math.min(Math.max(score / maxScore, 0), 1)
     const strokeDashoffset = circumference * (1 - progress)
-
-    const getScoreColor = () => {
-      if (progress >= 0.7) return '#10B981'
-      if (progress >= 0.4) return '#F59E0B'
-      return '#EF4444'
-    }
+    const scoreColor = getScoreColor(score, maxScore)
 
     return (
       <div
@@ -65,7 +61,7 @@ const ScoreRing = forwardRef<HTMLDivElement, ScoreRingProps>(
         <div className="relative z-10 flex flex-col items-center justify-center">
           <span
             className="font-mono text-[48px] font-bold leading-none text-text-primary"
-            style={{ color: getScoreColor() }}
+            style={{ color: scoreColor }}
           >
             {score}
           </span>
