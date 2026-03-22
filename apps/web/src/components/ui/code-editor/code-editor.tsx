@@ -1,5 +1,5 @@
 import { cn } from '@/lib/cn'
-import { LANGUAGES, type LanguageId, detectLanguage } from '@/lib/detect-language'
+import { LANGUAGE_OPTIONS, detectLanguage } from '@/lib/detect-language'
 import { type HTMLAttributes, forwardRef, useCallback, useEffect, useState } from 'react'
 import { codeToHtml } from 'shiki'
 
@@ -10,8 +10,8 @@ export type CodeEditorProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> &
 }
 
 export type CodeEditorHeaderProps = HTMLAttributes<HTMLDivElement> & {
-  language: LanguageId
-  onLanguageChange: (language: LanguageId) => void
+  language: string
+  onLanguageChange: (language: string) => void
 }
 
 export type CodeEditorContentProps = HTMLAttributes<HTMLDivElement> & {
@@ -40,12 +40,12 @@ const CodeEditorHeader = forwardRef<HTMLDivElement, CodeEditorHeaderProps>(
 
         <select
           value={language}
-          onChange={e => onLanguageChange(e.target.value as LanguageId)}
+          onChange={e => onLanguageChange(e.target.value)}
           className="ml-auto cursor-pointer rounded border border-border-primary bg-bg-page px-2 py-1 font-mono text-xs text-text-secondary outline-none hover:border-border-secondary focus:border-accent-green"
         >
-          {LANGUAGES.map(lang => (
-            <option key={lang.id} value={lang.id}>
-              {lang.name}
+          {LANGUAGE_OPTIONS.map(lang => (
+            <option key={lang.value} value={lang.value}>
+              {lang.label}
             </option>
           ))}
         </select>
@@ -105,7 +105,7 @@ CodeEditorContent.displayName = 'CodeEditorContent'
 const CodeEditor = forwardRef<HTMLDivElement, CodeEditorProps>(
   ({ className, defaultValue = '', onChange, showLineNumbers = true, ...props }, ref) => {
     const [code, setCode] = useState(defaultValue)
-    const [language, setLanguage] = useState<LanguageId>('javascript')
+    const [language, setLanguage] = useState('javascript')
 
     const handlePaste = useCallback(
       (e: React.ClipboardEvent<HTMLDivElement>) => {
@@ -120,7 +120,7 @@ const CodeEditor = forwardRef<HTMLDivElement, CodeEditorProps>(
       [onChange]
     )
 
-    const handleLanguageChange = useCallback((newLanguage: LanguageId) => {
+    const handleLanguageChange = useCallback((newLanguage: string) => {
       setLanguage(newLanguage)
     }, [])
 
