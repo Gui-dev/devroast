@@ -2,7 +2,41 @@
 
 ## Visão Geral
 
-Este é um monorepo Turbo Repo com Next.js para o projeto Devroast.
+Este é um monorepo Turbo Repo com Next.js para o frontend e Fastify para a API.
+
+## Arquitetura
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         Frontend (Next.js)                       │
+│                                                                  │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │
+│  │  page.tsx   │ ──▶ │  MetricsSrv │ ──▶ │ AnimatedMtr │       │
+│  │ (Server)    │     │  (Server)   │     │  (Client)   │       │
+│  └─────────────┘     └─────────────┘     └──────┬──────┘       │
+│                                                  │               │
+│                                                  ▼               │
+│  ┌─────────────┐                         ┌─────────────┐        │
+│  │ Providers   │ ◀───────────────────── │TanStack Q  │        │
+│  │ (QueryClient│                         │(cache)     │        │
+│  └─────────────┘                         └─────────────┘        │
+└─────────────────────────────────────────────────────────────────┘
+                              │ Fetch
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                         Backend (Fastify)                        │
+│                                                                  │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │
+│  │ /metrics    │ ──▶ │ Use Cases   │ ──▶ │ Repositories│       │
+│  │  (Route)    │     │             │     │ (Drizzle)   │       │
+│  └─────────────┘     └─────────────┘     └──────┬──────┘       │
+│                                                  │               │
+│                                                  ▼               │
+│                                        ┌─────────────────┐      │
+│                                        │   PostgreSQL    │      │
+│                                        └─────────────────┘      │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ## Estrutura do Projeto
 
@@ -22,21 +56,26 @@ devroast/
 │       └── src/
 │           ├── app/            # App Router (pages, layouts)
 │           ├── components/     # Componentes React
-│           │   └── ui/         # Componentes de UI genéricos
+│           │   ├── providers.tsx    # TanStack Query Provider
+│           │   ├── metrics-*.tsx   # Componentes de métricas
+│           │   └── ui/             # Componentes de UI genéricos
 │           └── lib/            # Utilitários
 ├── docker-compose.yml          # PostgreSQL (raiz do monorepo)
 ├── docs/                       # Documentação e guidelines
-│   └── skills/                 # Skills para agentes
-├── packages/                   # Pacotes compartilhados (futuro)
+│   └── specs/                  # Especificações de features
 └── turbo.json                  # Configuração Turbo
 ```
 
 ## Referências
 
+- [API AGENTS.md](./apps/api/AGENTS.md) - Documentação da API Fastify
+- [Web AGENTS.md](./apps/web/AGENTS.md) - Documentação do Frontend Next.js
 - [Padrões de Componentes UI](./apps/web/src/components/ui/AGENTS.md)
 - [Configuração Biome](./biome.json)
 - [Configuração Tailwind](./apps/web/src/app/globals.css)
-- [Testing Guideline](./docs/TESTING_GUIDELINE.md)
+- [Testing Guideline Frontend](./docs/TESTING_GUIDELINE.md)
+- [Testing Guideline API](./docs/TESTING_GUIDELINE_API.md)
+- [TanStack Query Spec](./docs/specs/tanstack-query.md)
 - [Commits Guideline](./docs/skills/COMMITS_GUIDELINE.md)
 
 ## Regras Gerais
