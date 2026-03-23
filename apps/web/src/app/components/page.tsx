@@ -2,7 +2,7 @@ import { Navbar } from '@/components/navbar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { CodeBlock, CodeBlockContent, CodeBlockHeader } from '@/components/ui/code-block'
+import { CodeBlock, CodeBlockHeader } from '@/components/ui/code-block'
 import { DiffLine } from '@/components/ui/diff-line'
 import {
   LeaderboardCode,
@@ -25,9 +25,11 @@ const codeExample = `function calculateTotal(items) {
 
 export default function ComponentsPage() {
   return (
-    <main className="flex min-h-screen flex-col gap-16 bg-bg-page p-8">
+    <main className="flex min-h-screen flex-col gap-12 bg-bg-page px-4 py-8 sm:gap-16 sm:px-6 md:px-8">
       <section className="flex flex-col gap-6">
-        <h1 className="text-2xl font-bold text-text-primary">{'//'} component_library</h1>
+        <h1 className="text-xl font-bold text-text-primary sm:text-2xl">
+          {'//'} component_library
+        </h1>
 
         <div className="h-px w-full bg-border-primary" />
       </section>
@@ -115,10 +117,10 @@ export default function ComponentsPage() {
           <span className="text-accent-green">{'//'}</span> code_block
         </h2>
 
-        <CodeBlock lang="javascript">
-          <CodeBlockHeader>calculate.js</CodeBlockHeader>
-          <CodeBlockContent code={codeExample} lang="javascript" />
-        </CodeBlock>
+        <div className="overflow-hidden rounded-md border border-border-primary">
+          <CodeBlockHeader filename="calculate.js" />
+          <CodeBlock code={codeExample} lang="javascript" />
+        </div>
       </section>
 
       <section className="flex flex-col gap-6">

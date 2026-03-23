@@ -1,17 +1,15 @@
 'use client'
 
 import { fetchMetrics } from '@/app/hooks/use-metrics'
-import type { Metrics } from '@/components/metrics-types'
 import NumberFlow from '@number-flow/react'
 import { useQuery } from '@tanstack/react-query'
 
 export function AnimatedMetrics() {
-  const { data } = useQuery<Metrics>({
+  const { data } = useQuery({
     queryKey: ['metrics'],
     queryFn: fetchMetrics,
+    initialData: { totalRoasts: 0, avgScore: 0 },
   })
-
-  if (!data) return null
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">

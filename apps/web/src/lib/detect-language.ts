@@ -158,38 +158,123 @@ type LanguagePattern = {
 }
 
 const LANGUAGE_PATTERNS: LanguagePattern[] = [
-  // HTML - VERY specific, check first (has < > brackets)
+  // TSX/JSX - MUST come before HTML (has JSX syntax)
+  {
+    patterns: [
+      /import\s+.+from\s+['"][./@]/m, // JS/TS import
+      /export\s+(default\s+)?(function|const|class)\s/m, // JS/TS export
+      /<\w+[^>]*\s+className\s*=/, // JSX className attribute
+      /<\w+[^>]*\s+on(Click|Change|Submit|Focus|Blur)\s*=/, // JSX event handlers
+      /<\w+[^>]*\s+href\s*=/, // JSX link attributes
+      /<[A-Z]\w+[^>]*>/m, // React components (PascalCase)
+      /\w+useState\s*</, // useState with type parameter
+      /useEffect\s*\(\s*\(\s*\)\s*=>/, // useEffect with arrow function
+      /\w+useCallback\s*</, // useCallback with type parameter
+      /\w+useMemo\s*</, // useMemo with type parameter
+      /React\.(createElement|Fragment)/, // React API usage
+      /\{[^}]*<[A-Z]\w+[^}]*\}/, // JSX in object: {<Component />}
+      /return\s+</, // return < (JSX return)
+      /<\w+[^>]*>\s*\{/, // Tag with JSX expression: <div>{...}
+    ],
+    language: 'tsx',
+    weight: 15,
+  },
+
+  // TYPESCRIPT - specific (interface, type, :)
+  {
+    patterns: [
+      /\binterface\s+\w+/,
+      /\btype\s+\w+\s*=/,
+      /export\s+function\s+\w+/,
+      /:\s+(string|number|boolean|void|any|never|unknown)\b/,
+      /<[A-Z]\w*>|<\w+,\s*\w+>/, // Generic types: <T>, <string, number>
+      /\bas\s+(string|number|boolean|any)/,
+      /:\s*\w+\s*=>\s*\w+/,
+      /\bimplements\s+\w+/,
+      /\benum\s+\w+/,
+    ],
+    language: 'typescript',
+    weight: 12,
+  },
+
+  // JAVASCRIPT (generic patterns) - comes after TypeScript
+  {
+    patterns: [
+      /\bconsole\.(log|error|warn)\s*\(/, // console.log
+      /\bdocument\.\w+/, // DOM manipulation
+      /\bwindow\.\w+/, // Window API
+      /=>\s*{/, // Arrow functions
+      /const\s+\w+\s*=/, // const declaration
+      /let\s+\w+\s*=/, // let declaration
+      /function\s+\w+\s*\(/, // function declaration
+      /\bnew\s+\w+\s*\(/, // new instance
+      /\.then\s*\(/, // Promise
+      /\.catch\s*\(/, // Promise error
+      /async\s+function/, // async function
+      /\bawait\s+/, // await keyword
+      /return\s+\w+\s*;/, // return statement
+      /Math\.\w+/, // Math object
+      /JSON\.(parse|stringify)/, // JSON methods
+      /Array\.\w+/, // Array methods
+      /Object\.\w+/, // Object methods
+    ],
+    language: 'javascript',
+    weight: 8,
+  },
+
+  // JAVASCRIPT/TYPESCRIPT (generic patterns)
+  {
+    patterns: [
+      /\bconsole\.(log|error|warn)\s*\(/, // console.log
+      /\bdocument\.\w+/, // DOM manipulation
+      /\bwindow\.\w+/, // Window API
+      /=>\s*{/, // Arrow functions
+      /const\s+\w+\s*=/, // const declaration
+      /let\s+\w+\s*=/, // let declaration
+      /function\s+\w+\s*\(/, // function declaration
+      /\bnew\s+\w+\s*\(/, // new instance
+      /\.then\s*\(/, // Promise
+      /\.catch\s*\(/, // Promise error
+      /async\s+function/, // async function
+      /\bawait\s+/, // await keyword
+      /return\s+\w+\s*;/, // return statement
+      /Math\.\w+/, // Math object
+      /JSON\.(parse|stringify)/, // JSON methods
+      /Array\.\w+/, // Array methods
+      /Object\.\w+/, // Object methods
+    ],
+    language: 'javascript',
+    weight: 8,
+  },
+
+  // HTML - VERY specific (has DOCTYPE, html, head, body tags)
   {
     patterns: [
       /<!DOCTYPE\s+html/i,
-      /<html[^>]*>/i,
+      /<html[^>]*\b(lang|xmlns)\s*=/i,
       /<head[^>]*>/i,
       /<body[^>]*>/i,
-      /<div[^>]*>/i,
-      /<script[^>]*>/i,
-      /<style[^>]*>/i,
-      /<\/\w+>/,
+      /<\/\s*(html|head|body)\s*>/i,
+      /<\w+>\s*<\w+>/, // HTML tag pattern: <div>\n    <p>
+      /<\/\w+>/, // Closing tags: </div>, </p>
+      /<\/?(style|script|link)\b/i, // HTML embedded content tags
     ],
     language: 'html',
-    weight: 10,
+    weight: 14,
   },
 
-  // CSS - specific (has { } and : for properties)
+  // CSS - specific (has { } and : for properties) - must NOT have HTML tags
   {
     patterns: [
-      /^[\.#\@]?\w+\s*\{/m,
+      /^\s*[\.#\@]\w+\s*\{/m, // Starts with .class or #id
+      /^[\.#\@]\w+\s*\{/m, // Selector followed by {
       /@media\s*\(/,
       /@keyframes\s+\w+/,
       /@import\s+/,
       /@charset\s+/,
-      /:\s*(flex|grid|block|none|auto)\s*;/,
-      /:\s*\d+(px|em|rem|%|vh|vw)/,
-      /background(-color)?:/,
-      /color:\s*[\w\#]/,
-      /:\s*#[0-9a-f]{3,6}/i,
     ],
     language: 'css',
-    weight: 10,
+    weight: 8, // Lower weight so HTML wins
   },
 
   // JSON - specific (has "key": value pattern)
@@ -304,34 +389,18 @@ const LANGUAGE_PATTERNS: LanguagePattern[] = [
     weight: 8,
   },
 
-  // TYPESCRIPT - specific (interface, type, :)
-  {
-    patterns: [
-      /\binterface\s+\w+/,
-      /\btype\s+\w+\s*=/,
-      /:\s*(string|number|boolean|void|any|never|unknown)\b/,
-      /<\w+(\s*,\s*\w+)*>/,
-      /\bas\s+(string|number|boolean|any)/,
-      /:\s*\w+\s*=>\s*\w+/,
-      /\bimplements\s+\w+/,
-      /\benum\s+\w+/,
-    ],
-    language: 'typescript',
-    weight: 10,
-  },
-
   // PYTHON - specific (def, import, print, self.)
   {
     patterns: [
-      /^\s*def\s+\w+\s*\(/m,
-      /^\s*class\s+\w+\s*[:(]/m,
-      /^\s*import\s+\w+/m,
-      /^\s*from\s+\w+\s+import/m,
-      /\bprint\s*\(/,
-      /\.self\b/,
-      /\braise\s+\w+/,
-      /\belif\s+/,
-      /\bwith\s+\w+\s+as/,
+      /^\s*def\s+\w+\s*\(/m, // Python def (no semicolon, no type annotation)
+      /^\s*class\s+\w+\s*[:(]/m, // Python class with : or (
+      /^\s*import\s+\w+$/m, // Python import (no 'from')
+      /^\s*from\s+\w+\s+import/m, // Python from import
+      /\bprint\s*\(/, // Python print (no console)
+      /\.self\b/, // Python self
+      /\braise\s+\w+/, // Python raise
+      /\belif\s+/, // Python elif
+      /\bwith\s+\w+\s+as/, // Python with
     ],
     language: 'python',
     weight: 10,
@@ -388,8 +457,10 @@ export function detectLanguage(code: string): string {
 
   try {
     const result = hljs.highlightAuto(code, HLJS_DETECTION_LANGUAGES)
+    console.log('hljs result:', result.language)
     if (result.language) {
       const mapped = hljsIdToLanguageKey(result.language)
+      console.log('mapped:', mapped)
       if (mapped) return mapped
     }
   } catch {

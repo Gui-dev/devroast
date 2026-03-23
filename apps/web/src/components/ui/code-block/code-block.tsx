@@ -1,88 +1,58 @@
-import { cn } from '@/lib/cn'
-import { type HTMLAttributes, forwardRef } from 'react'
+import type { BundledLanguage } from 'shiki'
 import { codeToHtml } from 'shiki'
+import { cn } from '@/lib/cn'
 
-export type CodeBlockProps = HTMLAttributes<HTMLDivElement>
-
-export type CodeBlockHeaderProps = HTMLAttributes<HTMLDivElement>
-
-export type CodeBlockContentProps = HTMLAttributes<HTMLDivElement> & {
+type CodeBlockProps = {
   code: string
-  lang?: string
+  lang: BundledLanguage
+  className?: string
 }
 
-const CodeBlock = forwardRef<HTMLDivElement, CodeBlockProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'w-full overflow-hidden rounded-md border border-border-primary',
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </div>
-    )
-  },
-)
+async function CodeBlock({ code, lang, className }: CodeBlockProps) {
+  'use cache'
 
-CodeBlock.displayName = 'CodeBlock'
+  const html = await codeToHtml(code, {
+    lang,
+    theme: 'vesper',
+  })
 
-const CodeBlockHeader = forwardRef<HTMLDivElement, CodeBlockHeaderProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'flex items-center gap-3 border-b border-border-primary bg-bg-surface px-4 py-2.5',
-          className,
-        )}
-        {...props}
-      >
-        <span className="size-2.5 rounded-full bg-accent-red" />
-        <span className="size-2.5 rounded-full bg-accent-amber" />
-        <span className="size-2.5 rounded-full bg-accent-green" />
-        {children && (
-          <span className="ml-auto font-mono text-[12px] text-text-tertiary">
-            {children}
-          </span>
-        )}
-      </div>
-    )
-  },
-)
+  const lines = code.split('\n')
 
-CodeBlockHeader.displayName = 'CodeBlockHeader'
-
-const CodeBlockContent = forwardRef<HTMLDivElement, CodeBlockContentProps>(
-  async ({ className, code, lang = 'javascript', ...props }, ref) => {
-    const html = await codeToHtml(code, {
-      lang,
-      theme: 'vesper',
-    })
-
-    const lines = code.split('\n')
-
-    return (
-      <div ref={ref} className={cn('flex', className)} {...props}>
-        <div className="flex w-10 flex-col border-r border-border-primary bg-bg-surface py-3 pr-4 font-mono text-[13px] leading-normal text-text-tertiary">
+  return (
+    <div className={cn('border border-border-primary overflow-hidden', className)}>
+      <div className="flex bg-bg-input">
+        <div className="flex w-10 flex-col items-end gap-1.5 border-r border-border-primary bg-bg-surface py-3 pr-2.5 select-none">
           {lines.map((_, i) => (
-            <span key={`line-${i + 1}`} className="w-full text-right">
+            <span
+              key={`ln-${i.toString()}`}
+              className="font-mono text-[13px] leading-tight text-text-tertiary"
+            >
               {i + 1}
             </span>
           ))}
         </div>
         <div
-          className="min-w-0 flex-1 overflow-x-auto bg-bg-page px-4 py-3 [&>pre]:bg-transparent! [&>pre]:p-0!"
+          className="flex-1 overflow-x-auto p-3 font-mono text-[13px] leading-tight [&_pre]:!bg-transparent [&_pre]:!m-0 [&_pre]:!p-0 [&_code]:!bg-transparent [&_.line]:leading-[1.65]"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
-    )
-  },
-)
+    </div>
+  )
+}
 
-CodeBlockContent.displayName = 'CodeBlockContent'
+function CodeBlockHeader({ filename }: { filename?: string }) {
+  return (
+    <div className="flex h-10 items-center gap-3 border-b border-border-primary px-4">
+      <span className="size-2.5 rounded-full bg-accent-red" />
+      <span className="size-2.5 rounded-full bg-accent-amber" />
+      <span className="size-2.5 rounded-full bg-accent-green" />
+      <span className="flex-1" />
+      {filename && (
+        <span className="font-mono text-xs text-text-tertiary">{filename}</span>
+      )}
+    </div>
+  )
+}
 
-export { CodeBlock, CodeBlockHeader, CodeBlockContent }
+export { CodeBlock, CodeBlockHeader }
+export type { CodeBlockProps }

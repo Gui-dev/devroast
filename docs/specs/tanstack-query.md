@@ -22,7 +22,7 @@ TanStack Query (React Query) will be used as our server-state management layer b
 | `apps/api/src/routes/metrics.routes.ts` | ✅ Complete |
 | `apps/web/src/lib/get-query-client.ts` | ✅ Complete |
 | `apps/web/src/components/providers.tsx` | ✅ Complete |
-| `apps/web/src/components/metrics-skeleton.tsx` | ✅ Complete |
+| `apps/web/src/components/metrics-skeleton.tsx` | ❌ Removido (usamos `initialData` com 0) |
 | `apps/web/src/components/animated-metrics.tsx` | ✅ Complete |
 | `apps/web/src/components/metrics-server.tsx` | ✅ Complete |
 | `apps/web/src/components/home-client.tsx` | ✅ Complete |

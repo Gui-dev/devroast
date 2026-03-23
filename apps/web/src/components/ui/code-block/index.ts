@@ -1,6 +1,2 @@
-export { CodeBlock, CodeBlockHeader, CodeBlockContent } from './code-block'
-export type {
-  CodeBlockProps,
-  CodeBlockHeaderProps,
-  CodeBlockContentProps,
-} from './code-block'
+export { CodeBlock, CodeBlockHeader } from './code-block'
+export type { CodeBlockProps } from './code-block'

@@ -61,3 +61,29 @@
     @apply h-full bg-bg-page text-text-primary font-mono;
   }
 }
+
+.shiki-output {
+  background: transparent !important;
+}
+
+.shiki-output pre {
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation
+    Mono, Courier New, monospace !important;
+  font-size: 13px !important;
+  line-height: normal !important;
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+}
+
+.shiki-output code {
+  background: transparent !important;
+}
+
+.shiki-output .line {
+  display: block;
+  min-height: 1.5em;
+}
