@@ -77,4 +77,21 @@ export class RoastRepository implements RoastContract {
     await db.execute(sql`DELETE FROM roasts WHERE id = ${id}`)
     return true
   }
+
+  async getMetrics(): Promise<{ totalRoasts: number; avgScore: number }> {
+    try {
+      const countResult = await db.execute(sql`SELECT COUNT(*) as cnt FROM roasts`)
+      const avgResult = await db.execute(
+        sql`SELECT COALESCE(AVG(score), 0) as avg_score FROM roasts`
+      )
+
+      const totalRoasts = Number(countResult.rows[0]?.cnt ?? 0)
+      const avgScore = Math.round(Number(avgResult.rows[0]?.avg_score ?? 0) * 10) / 10
+
+      return { totalRoasts, avgScore }
+    } catch (error) {
+      console.error('getMetrics error:', error)
+      throw error
+    }
+  }
 }

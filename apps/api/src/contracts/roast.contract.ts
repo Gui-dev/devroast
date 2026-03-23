@@ -13,6 +13,7 @@ export interface RoastContract {
   findAll(limit?: number): Promise<Roast[]>
   update(id: string, data: UpdateRoastInput): Promise<Roast | null>
   delete(id: string): Promise<boolean>
+  getMetrics(): Promise<{ totalRoasts: number; avgScore: number }>
 }
 
 export interface CreateAnalysisIssueInput {

@@ -67,6 +67,16 @@ export class InMemoryRoastRepository implements RoastContract {
     this.roasts.splice(index, 1)
     return true
   }
+
+  async getMetrics(): Promise<{ totalRoasts: number; avgScore: number }> {
+    const totalRoasts = this.roasts.length
+    const avgScore =
+      totalRoasts > 0 ? this.roasts.reduce((sum, r) => sum + r.score, 0) / totalRoasts : 0
+    return {
+      totalRoasts,
+      avgScore: Math.round(avgScore * 10) / 10,
+    }
+  }
 }
 
 export class InMemoryAnalysisIssueRepository implements AnalysisIssueContract {

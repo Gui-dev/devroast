@@ -1,7 +1,5 @@
-'use client'
-
-import { Button } from '@/components/ui/button'
-import { CodeEditor } from '@/components/ui/code-editor'
+import { HomeClient } from '@/components/home-client'
+import { MetricsServer } from '@/components/metrics-server'
 import {
   LeaderboardCode,
   LeaderboardLanguage,
@@ -10,8 +8,6 @@ import {
   LeaderboardScore,
 } from '@/components/ui/leaderboard-row'
 import { Link } from '@/components/ui/link'
-import { Toggle } from '@/components/ui/toggle'
-import { useState } from 'react'
 
 const leaderboardData = [
   {
@@ -35,12 +31,6 @@ const leaderboardData = [
 ]
 
 export default function HomePage() {
-  const [code, setCode] = useState('')
-
-  const handleCodeChange = (newCode: string) => {
-    setCode(newCode)
-  }
-
   return (
     <div className="flex flex-col gap-6 px-4 sm:gap-8 sm:px-6 md:px-10 py-12 sm:py-16 md:py-20">
       <div className="flex flex-col gap-3 text-center">
@@ -53,25 +43,9 @@ export default function HomePage() {
         </p>
       </div>
 
-      <div className="mx-auto w-full max-w-195">
-        <CodeEditor onChange={handleCodeChange} />
-      </div>
+      <HomeClient />
 
-      <div className="mx-auto flex w-full max-w-195 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <Toggle label="roast mode" />
-          <span className="font-sans text-xs text-text-tertiary">
-            {'//'} maximum sarcasm enabled
-          </span>
-        </div>
-        <Button disabled={!code}>$ roast_my_code</Button>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
-        <span className="font-sans text-xs text-text-tertiary sm:text-sm">2,847 codes roasted</span>
-        <span className="hidden text-text-tertiary sm:block">·</span>
-        <span className="font-sans text-xs text-text-tertiary sm:text-sm">avg score: 4.2/10</span>
-      </div>
+      <MetricsServer />
 
       <div className="h-4 sm:h-8" />
 

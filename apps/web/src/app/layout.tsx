@@ -1,4 +1,5 @@
 import { Navbar } from '@/components/navbar'
+import { Providers } from '@/components/providers'
 import type { Metadata } from 'next'
 import { IBM_Plex_Mono, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
@@ -30,7 +31,9 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${jetbrainsMono.variable} ${ibmPlexMono.variable}`}>
       <body>
         <Navbar />
-        <main>{children}</main>
+        <main>
+          <Providers>{children}</Providers>
+        </main>
       </body>
     </html>
   )

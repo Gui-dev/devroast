@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { faker } from '@faker-js/faker'
 import { sql } from 'drizzle-orm'
 import { db } from './index.js'

@@ -4,6 +4,7 @@ import swaggerUi from '@fastify/swagger-ui'
 import Fastify from 'fastify'
 import { RoastRepository } from './repositories/roast.repository.js'
 import { healthRoutes } from './routes/health.routes.js'
+import { metricsRoutes } from './routes/metrics.routes.js'
 import { roastRoutes } from './routes/roast.routes.js'
 
 export async function buildApp() {
@@ -47,6 +48,7 @@ export async function buildApp() {
 
   await fastify.register(healthRoutes)
   await fastify.register(roastRoutes, { repository })
+  await fastify.register(metricsRoutes, { repository })
 
   return fastify
 }
