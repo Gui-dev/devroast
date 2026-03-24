@@ -1,34 +1,7 @@
 import { HomeClient } from '@/components/home-client'
 import { MetricsServer } from '@/components/metrics-server'
-import {
-  LeaderboardCode,
-  LeaderboardLanguage,
-  LeaderboardRank,
-  LeaderboardRow,
-  LeaderboardScore,
-} from '@/components/ui/leaderboard-row'
+import { ShameLeaderboardServer } from '@/components/shame-leaderboard-server'
 import { Link } from '@/components/ui/link'
-
-const leaderboardData = [
-  {
-    rank: 1,
-    score: 2.1,
-    codePreview: 'function calculateTotal(items) { var total = 0; ...',
-    language: 'javascript',
-  },
-  {
-    rank: 2,
-    score: 3.5,
-    codePreview: 'const calculateTotal = (items) => items.reduce...',
-    language: 'javascript',
-  },
-  {
-    rank: 3,
-    score: 4.8,
-    codePreview: 'function calculateTotal(items: Item[]): number { ...',
-    language: 'typescript',
-  },
-]
 
 export default function HomePage() {
   return (
@@ -57,23 +30,7 @@ export default function HomePage() {
           <Link href="/leaderboard">$ view_all &gt;&gt;</Link>
         </div>
 
-        <div className="flex flex-col border border-border-primary">
-          {leaderboardData.map(item => (
-            <LeaderboardRow key={item.rank}>
-              <LeaderboardRank>{item.rank}</LeaderboardRank>
-              <LeaderboardScore>{item.score}</LeaderboardScore>
-              <LeaderboardCode>{item.codePreview}</LeaderboardCode>
-              <LeaderboardLanguage>{item.language}</LeaderboardLanguage>
-            </LeaderboardRow>
-          ))}
-        </div>
-
-        <p className="text-center font-sans text-xs text-text-tertiary sm:text-sm">
-          showing top 3 of 2,847 ·{' '}
-          <Link href="/leaderboard" className="text-text-secondary">
-            view full leaderboard &gt;&gt;
-          </Link>
-        </p>
+        <ShameLeaderboardServer />
       </section>
 
       <div className="h-4 sm:h-8" />

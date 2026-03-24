@@ -44,4 +44,33 @@ export class LeaderboardRepository implements LeaderboardContract {
 
     return (result.rows[0] as unknown as LeaderboardEntry) ?? null
   }
+
+  async getWorstRoasts(limit = 3): Promise<LeaderboardEntry[]> {
+    const result = await db.execute(
+      sql`
+        SELECT id, score, language, code, "updatedAt"
+        FROM roasts 
+        ORDER BY score ASC 
+        LIMIT ${limit}
+      `
+    )
+
+    const rows = result.rows as unknown as {
+      id: string
+      score: number
+      language: string
+      code: string
+      updatedAt: Date
+    }[]
+
+    return rows.map((row, index) => ({
+      id: row.id,
+      roastId: row.id,
+      rank: index + 1,
+      score: row.score,
+      language: row.language,
+      codePreview: row.code.slice(0, 50),
+      updatedAt: row.updatedAt,
+    }))
+  }
 }

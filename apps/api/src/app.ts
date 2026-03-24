@@ -2,8 +2,10 @@ import cors from '@fastify/cors'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
 import Fastify from 'fastify'
+import { LeaderboardRepository } from './repositories/leaderboard.repository.js'
 import { RoastRepository } from './repositories/roast.repository.js'
 import { healthRoutes } from './routes/health.routes.js'
+import { leaderboardRoutes } from './routes/leaderboard.routes.js'
 import { metricsRoutes } from './routes/metrics.routes.js'
 import { roastRoutes } from './routes/roast.routes.js'
 
@@ -32,6 +34,7 @@ export async function buildApp() {
       tags: [
         { name: 'Health', description: 'Health check endpoints' },
         { name: 'Roasts', description: 'Roast management endpoints' },
+        { name: 'Leaderboard', description: 'Leaderboard endpoints' },
       ],
     },
   })
@@ -44,11 +47,13 @@ export async function buildApp() {
     },
   })
 
-  const repository = new RoastRepository()
+  const roastRepository = new RoastRepository()
+  const leaderboardRepository = new LeaderboardRepository()
 
   await fastify.register(healthRoutes)
-  await fastify.register(roastRoutes, { repository })
-  await fastify.register(metricsRoutes, { repository })
+  await fastify.register(roastRoutes, { repository: roastRepository })
+  await fastify.register(metricsRoutes, { repository: roastRepository })
+  await fastify.register(leaderboardRoutes, { repository: leaderboardRepository })
 
   return fastify
 }

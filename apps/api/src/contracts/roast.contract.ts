@@ -53,4 +53,5 @@ export interface LeaderboardContract {
   create(data: CreateLeaderboardEntryInput): Promise<LeaderboardEntry>
   getTopRoasts(limit?: number): Promise<LeaderboardEntry[]>
   getRankByRoastId(roastId: string): Promise<LeaderboardEntry | null>
+  getWorstRoasts(limit?: number): Promise<LeaderboardEntry[]>
 }

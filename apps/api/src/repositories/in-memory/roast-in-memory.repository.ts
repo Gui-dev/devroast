@@ -149,4 +149,9 @@ export class InMemoryLeaderboardRepository implements LeaderboardContract {
   async getRankByRoastId(roastId: string): Promise<LeaderboardEntry | null> {
     return this.entries.find(e => e.roastId === roastId) ?? null
   }
+
+  async getWorstRoasts(limit = 3): Promise<LeaderboardEntry[]> {
+    const sorted = [...this.entries].sort((a, b) => a.score - b.score)
+    return sorted.slice(0, limit)
+  }
 }
