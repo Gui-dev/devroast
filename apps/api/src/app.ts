@@ -1,8 +1,13 @@
 import cors from '@fastify/cors'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
-import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import Fastify from 'fastify'
+import {
+  type ZodTypeProvider,
+  jsonSchemaTransform,
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod'
 import { LeaderboardRepository } from './repositories/leaderboard.repository.js'
 import { RoastRepository } from './repositories/roast.repository.js'
 import { healthRoutes } from './routes/health.routes.js'
@@ -13,7 +18,10 @@ import { roastRoutes } from './routes/roast.routes.js'
 export async function buildApp() {
   const fastify = Fastify({
     logger: true,
-  }).withTypeProvider<TypeBoxTypeProvider>()
+  }).withTypeProvider<ZodTypeProvider>()
+
+  fastify.setValidatorCompiler(validatorCompiler)
+  fastify.setSerializerCompiler(serializerCompiler)
 
   await fastify.register(cors, {
     origin: true,
@@ -38,6 +46,7 @@ export async function buildApp() {
         { name: 'Leaderboard', description: 'Leaderboard endpoints' },
       ],
     },
+    transform: jsonSchemaTransform,
   })
 
   await fastify.register(swaggerUi, {

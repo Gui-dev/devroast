@@ -48,7 +48,7 @@ export const GetRoastParamsSchema = z.object({
 })
 
 export const ListRoastsQuerySchema = z.object({
-  limit: z.number().min(1).max(100).default(10).optional(),
+  limit: z.coerce.number().min(1).max(100).default(10).optional(),
 })
 
 export const WorstRoastResponseSchema = z.array(
