@@ -1,6 +1,7 @@
 import cors from '@fastify/cors'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
+import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import Fastify from 'fastify'
 import { LeaderboardRepository } from './repositories/leaderboard.repository.js'
 import { RoastRepository } from './repositories/roast.repository.js'
@@ -12,7 +13,7 @@ import { roastRoutes } from './routes/roast.routes.js'
 export async function buildApp() {
   const fastify = Fastify({
     logger: true,
-  })
+  }).withTypeProvider<TypeBoxTypeProvider>()
 
   await fastify.register(cors, {
     origin: true,
