@@ -27,13 +27,16 @@ apps/api/src/
 │   ├── create-roast.use-case.ts
 │   ├── get-roast.use-case.ts
 │   ├── list-roasts.use-case.ts
-│   └── get-metrics.use-case.ts
+│   ├── get-metrics.use-case.ts
+│   └── get-worst-roasts.use-case.ts
 ├── routes/
-│   ├── health.routes.ts      # GET /health
-│   ├── roast.routes.ts       # CRUD de roasts
-│   └── metrics.routes.ts     # GET /metrics
-├── app.ts                    # Configuração Fastify
-└── index.ts                  # Entry point
+│   ├── schemas.ts           # Zod schemas centralizados
+│   ├── health.routes.ts     # GET /health
+│   ├── roast.routes.ts      # CRUD de roasts
+│   ├── metrics.routes.ts    # GET /metrics
+│   └── leaderboard.routes.ts # GET /leaderboard/worst
+├── app.ts                   # Configuração Fastify
+└── index.ts                 # Entry point
 ```
 
 ## Endpoints
@@ -48,6 +51,57 @@ apps/api/src/
 
 ### Metrics
 - `GET /metrics` - Retorna `{ totalRoasts: number, avgScore: number }`
+
+### Leaderboard
+- `GET /leaderboard/worst` - Retorna os 3 piores roasts
+
+## Validação com Zod
+
+Todas as validações de rotas usam **Zod** para type-safety e melhor DX.
+
+### Arquivo de Schemas
+
+```typescript
+// apps/api/src/routes/schemas.ts
+import { z } from 'zod'
+
+export const MetricsResponseSchema = z.object({
+  totalRoasts: z.number(),
+  avgScore: z.number(),
+})
+
+export const CreateRoastBodySchema = z.object({
+  userId: z.string().optional(),
+  code: z.string().min(1),
+  language: z.enum([...]),
+  roastMode: z.enum(['honest', 'roast']).default('roast'),
+})
+
+// Tipos inferidos automaticamente
+export type MetricsResponse = z.infer<typeof MetricsResponseSchema>
+export type CreateRoastBody = z.infer<typeof CreateRoastBodySchema>
+```
+
+### Uso nas Rotas
+
+```typescript
+import { MetricsResponseSchema } from './schemas.js'
+
+fastify.get('/metrics', {
+  schema: {
+    response: {
+      200: MetricsResponseSchema,
+    },
+  },
+}, async () => { ... })
+```
+
+### Regras
+
+1. **Sempre usar Zod** para validação de input/output
+2. **Centralizar schemas** em `routes/schemas.ts`
+3. **Exportar tipos** com `z.infer` para uso em outros arquivos
+4. **NUNCA** usar JSON Schema nativo do Fastify
 
 ## Arquitetura
 
@@ -126,5 +180,32 @@ pnpm format  # Biome format
 - **fastify** - Framework HTTP
 - **drizzle-orm** - ORM TypeScript
 - **pg** - Driver PostgreSQL
+- **zod** - Validação de schemas
 - **vitest** - Test runner
 - **dotenv** - Variáveis de ambiente
+
+## Performance: Queries Paralelas
+
+Quando necessário buscar múltiplos dados, usar `Promise.all` para executar em paralelo:
+
+```typescript
+// ✅ Correto - executa em paralelo
+await Promise.all([
+  queryClient.prefetchQuery({ queryKey: ['metrics'], queryFn: fetchMetrics }),
+  queryClient.prefetchQuery({ queryKey: ['worstRoasts'], queryFn: fetchWorstRoasts }),
+])
+
+// ❌ Errado - executa sequencialmente
+await queryClient.prefetchQuery({ queryKey: ['metrics'], queryFn: fetchMetrics })
+await queryClient.prefetchQuery({ queryKey: ['worstRoasts'], queryFn: fetchWorstRoasts })
+```
+
+### Regra
+
+**Sempre usar `Promise.all`** quando:
+- Múltiplas queries independentes precisam ser carregadas
+- Os dados não dependem um do outro
+
+**Não usar** quando:
+- Uma query depende do resultado de outra
+- A segunda só deve ser executada após a primeira
