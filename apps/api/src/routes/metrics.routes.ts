@@ -1,18 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import type { RoastContract } from '../contracts/roast.contract.js'
 import { GetMetricsUseCase } from '../use-cases/get-metrics.use-case.js'
-
-const metricsSchema = {
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        totalRoasts: { type: 'number' },
-        avgScore: { type: 'number' },
-      },
-    },
-  },
-}
+import { MetricsResponseSchema } from './schemas.js'
 
 export function metricsRoutes(
   fastify: FastifyInstance,
@@ -22,20 +11,17 @@ export function metricsRoutes(
     '/metrics',
     {
       schema: {
-        ...metricsSchema,
         tags: ['Metrics'],
         description: 'Get global metrics',
+        response: {
+          200: MetricsResponseSchema,
+        },
       },
     },
     async () => {
-      try {
-        const useCase = new GetMetricsUseCase(repository)
-        const metrics = await useCase.execute()
-        return metrics
-      } catch (error) {
-        fastify.log.error(error)
-        throw error
-      }
+      const useCase = new GetMetricsUseCase(repository)
+      const metrics = await useCase.execute()
+      return metrics
     }
   )
 }

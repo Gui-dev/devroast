@@ -1,26 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import type { LeaderboardContract } from '../contracts/roast.contract.js'
 import { GetWorstRoastsUseCase } from '../use-cases/get-worst-roasts.use-case.js'
-
-const worstRoastsSchema = {
-  response: {
-    200: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          roastId: { type: 'string' },
-          rank: { type: 'number' },
-          score: { type: 'number' },
-          language: { type: 'string' },
-          codePreview: { type: 'string' },
-          updatedAt: { type: 'string' },
-        },
-      },
-    },
-  },
-}
+import { WorstRoastResponseSchema } from './schemas.js'
 
 export function leaderboardRoutes(
   fastify: FastifyInstance,
@@ -30,9 +11,11 @@ export function leaderboardRoutes(
     '/leaderboard/worst',
     {
       schema: {
-        ...worstRoastsSchema,
         tags: ['Leaderboard'],
         description: 'Get worst 3 roasts (lowest scores)',
+        response: {
+          200: WorstRoastResponseSchema,
+        },
       },
     },
     async () => {

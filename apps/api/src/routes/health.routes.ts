@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify'
+import { HealthResponseSchema } from './schemas.js'
 
 export async function healthRoutes(fastify: FastifyInstance) {
   fastify.get(
@@ -8,13 +9,7 @@ export async function healthRoutes(fastify: FastifyInstance) {
         description: 'Health check endpoint',
         tags: ['Health'],
         response: {
-          200: {
-            type: 'object',
-            properties: {
-              status: { type: 'string' },
-              timestamp: { type: 'string' },
-            },
-          },
+          200: HealthResponseSchema,
         },
       },
     },

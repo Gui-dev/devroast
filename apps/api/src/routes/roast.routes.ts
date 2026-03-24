@@ -1,131 +1,16 @@
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyInstance } from 'fastify'
+import { z } from 'zod'
 import type { RoastContract } from '../contracts/roast.contract.js'
-import type {
-  CreateRoastInput,
-  ProgrammingLanguage,
-  Roast,
-  RoastMode,
-  Verdict,
-} from '../entities/roast.entity.js'
+import type { CreateRoastInput } from '../entities/roast.entity.js'
 import { CreateRoastUseCase } from '../use-cases/create-roast.use-case.js'
 import { GetRoastUseCase } from '../use-cases/get-roast.use-case.js'
 import { ListRoastsUseCase } from '../use-cases/list-roasts.use-case.js'
-
-const createRoastSchema = {
-  body: {
-    type: 'object',
-    required: ['code', 'language'],
-    properties: {
-      userId: { type: 'string' },
-      code: { type: 'string', minLength: 1 },
-      language: {
-        type: 'string',
-        enum: [
-          'javascript',
-          'typescript',
-          'python',
-          'go',
-          'rust',
-          'java',
-          'cpp',
-          'css',
-          'html',
-          'json',
-        ],
-      },
-      roastMode: {
-        type: 'string',
-        enum: ['honest', 'roast'],
-        default: 'roast',
-      },
-    },
-  },
-  response: {
-    201: {
-      type: 'object',
-      properties: {
-        id: { type: 'string' },
-        userId: { type: ['string', 'null'] },
-        code: { type: 'string' },
-        language: { type: 'string' },
-        lineCount: { type: 'number' },
-        score: { type: 'number' },
-        verdict: { type: 'string' },
-        roastQuote: { type: ['string', 'null'] },
-        roastMode: { type: 'string' },
-        suggestedFix: { type: ['string', 'null'] },
-        createdAt: { type: 'string' },
-        updatedAt: { type: 'string' },
-      },
-    },
-  },
-}
-
-const getRoastSchema = {
-  params: {
-    type: 'object',
-    required: ['id'],
-    properties: {
-      id: { type: 'string' },
-    },
-  },
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        id: { type: 'string' },
-        userId: { type: ['string', 'null'] },
-        code: { type: 'string' },
-        language: { type: 'string' },
-        lineCount: { type: 'number' },
-        score: { type: 'number' },
-        verdict: { type: 'string' },
-        roastQuote: { type: ['string', 'null'] },
-        roastMode: { type: 'string' },
-        suggestedFix: { type: ['string', 'null'] },
-        createdAt: { type: 'string' },
-        updatedAt: { type: 'string' },
-      },
-    },
-    404: {
-      type: 'object',
-      properties: {
-        error: { type: 'string' },
-      },
-    },
-  },
-}
-
-const listRoastsSchema = {
-  querystring: {
-    type: 'object',
-    properties: {
-      limit: { type: 'number', minimum: 1, maximum: 100, default: 10 },
-    },
-  },
-  response: {
-    200: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          userId: { type: ['string', 'null'] },
-          code: { type: 'string' },
-          language: { type: 'string' },
-          lineCount: { type: 'number' },
-          score: { type: 'number' },
-          verdict: { type: 'string' },
-          roastQuote: { type: ['string', 'null'] },
-          roastMode: { type: 'string' },
-          suggestedFix: { type: ['string', 'null'] },
-          createdAt: { type: 'string' },
-          updatedAt: { type: 'string' },
-        },
-      },
-    },
-  },
-}
+import {
+  CreateRoastBodySchema,
+  GetRoastParamsSchema,
+  ListRoastsQuerySchema,
+  RoastResponseSchema,
+} from './schemas.js'
 
 export function roastRoutes(
   fastify: FastifyInstance,
@@ -135,7 +20,10 @@ export function roastRoutes(
     '/roasts',
     {
       schema: {
-        ...createRoastSchema,
+        body: CreateRoastBodySchema,
+        response: {
+          201: RoastResponseSchema,
+        },
         tags: ['Roasts'],
         description: 'Create a new roast',
       },
@@ -165,7 +53,11 @@ export function roastRoutes(
     '/roasts/:id',
     {
       schema: {
-        ...getRoastSchema,
+        params: GetRoastParamsSchema,
+        response: {
+          200: RoastResponseSchema,
+          404: z.object({ error: z.string() }),
+        },
         tags: ['Roasts'],
         description: 'Get a roast by ID',
       },
@@ -190,7 +82,10 @@ export function roastRoutes(
     '/roasts',
     {
       schema: {
-        ...listRoastsSchema,
+        querystring: ListRoastsQuerySchema,
+        response: {
+          200: z.array(RoastResponseSchema),
+        },
         tags: ['Roasts'],
         description: 'List all roasts',
       },
