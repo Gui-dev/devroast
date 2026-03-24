@@ -1,6 +1,6 @@
 import { HomeClient } from '@/components/home-client'
 import { MetricsServer } from '@/components/metrics-server'
-import { ShameLeaderboardServer } from '@/components/shame-leaderboard-server'
+import { ShameLeaderboardSection } from '@/components/shame-leaderboard-section'
 import { Link } from '@/components/ui/link'
 
 export default function HomePage() {
@@ -30,7 +30,7 @@ export default function HomePage() {
           <Link href="/leaderboard">$ view_all &gt;&gt;</Link>
         </div>
 
-        <ShameLeaderboardServer />
+        <ShameLeaderboardSection />
       </section>
 
       <div className="h-4 sm:h-8" />
