@@ -10,8 +10,8 @@ import { Suspense } from 'react'
 export async function ShameLeaderboardSection() {
   const queryClient = getQueryClient()
 
-  await Promise.all([
-    queryClient.prefetchQuery({
+  const [metricsData] = await Promise.all([
+    queryClient.fetchQuery({
       queryKey: ['metrics'],
       queryFn: fetchMetrics,
     }),
@@ -21,11 +21,13 @@ export async function ShameLeaderboardSection() {
     }),
   ])
 
+  const total = metricsData?.totalRoasts ?? '...'
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<ShameLeaderboardSkeleton />}>
         <ShameLeaderboard />
-        <ShameLeaderboardFooter />
+        <ShameLeaderboardFooter total={total} />
       </Suspense>
     </HydrationBoundary>
   )
