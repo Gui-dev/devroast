@@ -40,31 +40,28 @@ function ShameLeaderboardItem({
 }) {
   return (
     <article key={item.id} className="flex flex-col border border-border-primary overflow-hidden">
-      <div className="flex h-12 items-center justify-between border-b border-border-primary px-5">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <span className="font-mono text-[13px] text-text-tertiary">#</span>
-            <span className="font-mono text-[13px] font-bold text-accent-amber">{item.rank}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="font-mono text-xs text-text-tertiary">score:</span>
-            <span className={`font-mono text-[13px] font-bold ${scoreColor(item.score)}`}>
-              {item.score.toFixed(1)}
-            </span>
-          </div>
+      <div className="flex h-12 items-center gap-4 border-b border-border-primary px-5 sm:gap-6">
+        <div className="w-10 flex items-center">
+          <span className="font-mono text-[12px] font-medium text-text-tertiary">{item.rank}</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="w-[60px] flex items-center">
+          <span className={`font-mono text-[12px] font-bold ${scoreColor(item.score)}`}>
+            {item.score.toFixed(1)}
+          </span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <LeaderboardEntryCode lineCount={item.lineCount}>
+            <CodeBlockClient
+              code={item.code}
+              lang={item.language as BundledLanguage}
+              className="border-0"
+            />
+          </LeaderboardEntryCode>
+        </div>
+        <div className="hidden w-[100px] items-center sm:flex">
           <span className="font-mono text-xs text-text-secondary">{item.language}</span>
-          <span className="font-mono text-xs text-text-tertiary">{item.lineCount} lines</span>
         </div>
       </div>
-      <LeaderboardEntryCode lineCount={item.lineCount}>
-        <CodeBlockClient
-          code={item.code}
-          lang={item.language as BundledLanguage}
-          className="border-0"
-        />
-      </LeaderboardEntryCode>
     </article>
   )
 }
