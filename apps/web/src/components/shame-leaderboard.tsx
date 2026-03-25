@@ -50,13 +50,11 @@ function ShameLeaderboardItem({
           </span>
         </div>
         <div className="flex-1 min-w-0">
-          <LeaderboardEntryCode lineCount={item.lineCount}>
-            <CodeBlockClient
-              code={item.code}
-              lang={item.language as BundledLanguage}
-              className="border-0"
-            />
-          </LeaderboardEntryCode>
+          <CodeBlockClient
+            code={item.code}
+            lang={item.language as BundledLanguage}
+            className="border-0"
+          />
         </div>
         <div className="hidden w-[100px] items-center sm:flex">
           <span className="font-mono text-xs text-text-secondary">{item.language}</span>
