@@ -59,6 +59,8 @@ export const WorstRoastResponseSchema = z.array(
     score: z.number(),
     language: z.string(),
     codePreview: z.string(),
+    code: z.string(),
+    lineCount: z.number(),
     updatedAt: z.string(),
   })
 )
