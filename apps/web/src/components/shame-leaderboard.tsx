@@ -13,6 +13,19 @@ function scoreColor(score: number): string {
   return 'text-accent-green'
 }
 
+function ShameLeaderboardHeader() {
+  return (
+    <div className="flex h-10 items-center gap-4 border-b border-border-primary bg-bg-surface px-5 sm:gap-6">
+      <span className="w-10 font-mono text-[12px] font-medium text-text-tertiary">#</span>
+      <span className="w-[60px] font-mono text-[12px] font-medium text-text-tertiary">score</span>
+      <span className="flex-1 font-mono text-[12px] font-medium text-text-tertiary">code</span>
+      <span className="hidden w-[100px] font-mono text-[12px] font-medium text-text-tertiary sm:block">
+        lang
+      </span>
+    </div>
+  )
+}
+
 function ShameLeaderboardItem({
   item,
 }: {
@@ -67,7 +80,8 @@ export function ShameLeaderboard() {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col border border-border-primary">
+      <ShameLeaderboardHeader />
       {roasts.map(item => (
         <ShameLeaderboardItem key={item.id} item={item} />
       ))}
@@ -87,7 +101,8 @@ export function ShameLeaderboardWithFooter({ total }: { total: number | string }
 
   return (
     <>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col border border-border-primary">
+        <ShameLeaderboardHeader />
         {roasts.map(item => (
           <ShameLeaderboardItem key={item.id} item={item} />
         ))}
