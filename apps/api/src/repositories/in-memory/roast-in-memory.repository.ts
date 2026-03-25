@@ -136,6 +136,7 @@ export class InMemoryLeaderboardRepository implements LeaderboardContract {
       language: data.language,
       codePreview: data.codePreview,
       code: data.codePreview,
+      lineCount: data.codePreview.split('\n').length,
       updatedAt: new Date(),
     }
     this.entries.push(entry)

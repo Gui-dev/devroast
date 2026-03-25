@@ -71,6 +71,7 @@ export class LeaderboardRepository implements LeaderboardContract {
       language: row.language,
       codePreview: row.code.slice(0, 80),
       code: row.code,
+      lineCount: row.code.split('\n').length,
       updatedAt: row.updatedAt,
     }))
   }

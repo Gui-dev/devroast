@@ -6,6 +6,7 @@ export interface WorstRoast {
   language: string
   codePreview: string
   code: string
+  lineCount: number
   updatedAt: string
 }
 

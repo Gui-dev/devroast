@@ -11,15 +11,24 @@ type CodeBlockClientProps = {
   className?: string
 }
 
-export function CodeBlockClient({ code, lang, className }: CodeBlockClientProps) {
+export function CodeBlockClient({
+  code = '',
+  lang = 'javascript',
+  className,
+}: CodeBlockClientProps) {
   const [html, setHtml] = useState<string>('')
 
   useEffect(() => {
+    if (!code) return
     codeToHtml(code, {
       lang,
       theme: 'vesper',
     }).then(setHtml)
   }, [code, lang])
+
+  if (!code) {
+    return null
+  }
 
   if (!html) {
     return (
