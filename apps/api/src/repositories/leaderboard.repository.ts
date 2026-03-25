@@ -69,7 +69,8 @@ export class LeaderboardRepository implements LeaderboardContract {
       rank: index + 1,
       score: row.score,
       language: row.language,
-      codePreview: row.code.slice(0, 50),
+      codePreview: row.code.slice(0, 80),
+      code: row.code,
       updatedAt: row.updatedAt,
     }))
   }

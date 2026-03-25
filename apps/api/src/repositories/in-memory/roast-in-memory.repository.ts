@@ -135,6 +135,7 @@ export class InMemoryLeaderboardRepository implements LeaderboardContract {
       score: data.score,
       language: data.language,
       codePreview: data.codePreview,
+      code: data.codePreview,
       updatedAt: new Date(),
     }
     this.entries.push(entry)

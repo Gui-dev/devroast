@@ -23,16 +23,7 @@ export async function ShameLeaderboardSection() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense
-        fallback={
-          <>
-            <ShameLeaderboardSkeleton />
-            <p className="text-center font-sans text-xs text-text-tertiary sm:text-sm">
-              showing top 3 of ... · view full leaderboard &gt;&gt;
-            </p>
-          </>
-        }
-      >
+      <Suspense fallback={<ShameLeaderboardSkeleton />}>
         <ShameLeaderboard />
         <ShameLeaderboardFooter />
       </Suspense>

@@ -47,6 +47,7 @@ export interface CreateLeaderboardEntryInput {
   score: number
   language: string
   codePreview: string
+  code: string
 }
 
 export interface LeaderboardContract {

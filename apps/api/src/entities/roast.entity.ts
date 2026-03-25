@@ -64,6 +64,7 @@ export interface LeaderboardEntry {
   score: number
   language: string
   codePreview: string
+  code: string
   updatedAt: Date
 }
 

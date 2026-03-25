@@ -5,6 +5,7 @@ export interface WorstRoast {
   score: number
   language: string
   codePreview: string
+  code: string
   updatedAt: string
 }
 

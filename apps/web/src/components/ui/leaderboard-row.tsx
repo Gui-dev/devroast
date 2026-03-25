@@ -1,5 +1,9 @@
+'use client'
+
+import { CodeBlockClient } from '@/components/ui/code-block/code-block-client'
 import { cn } from '@/lib/cn'
-import { type HTMLAttributes, forwardRef } from 'react'
+import { type HTMLAttributes, forwardRef, useState } from 'react'
+import type { BundledLanguage } from 'shiki'
 
 export type LeaderboardRowProps = HTMLAttributes<HTMLDivElement>
 
@@ -9,7 +13,7 @@ const LeaderboardRow = forwardRef<HTMLDivElement, LeaderboardRowProps>(
       <div
         ref={ref}
         className={cn(
-          'flex flex-wrap items-center gap-2 border-b border-border-primary px-3 py-3 sm:gap-4 sm:px-4 sm:py-4 md:gap-6 md:px-5',
+          'flex flex-wrap items-center gap-4 border-b border-border-primary px-5 py-4 sm:gap-6 md:gap-6',
           className
         )}
         {...props}
@@ -79,6 +83,55 @@ const LeaderboardCode = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanEleme
 
 LeaderboardCode.displayName = 'LeaderboardCode'
 
+type LeaderboardCodeCollapsibleProps = HTMLAttributes<HTMLDivElement> & {
+  codePreview: string
+  fullCode: string
+  language: BundledLanguage
+}
+
+const LeaderboardCodeCollapsible = forwardRef<HTMLDivElement, LeaderboardCodeCollapsibleProps>(
+  ({ className, codePreview, fullCode, language, ...props }, ref) => {
+    const [isExpanded, setIsExpanded] = useState(false)
+
+    const previewLines = codePreview.split('\n').slice(0, 3).join('\n')
+    const hasMoreLines = codePreview.split('\n').length > 3
+
+    return (
+      <div ref={ref} className={cn('min-w-0 flex-1', className)} {...props}>
+        {isExpanded ? (
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => setIsExpanded(false)}
+              className="self-start font-mono text-[11px] text-text-tertiary hover:text-text-secondary sm:text-[12px]"
+            >
+              [- collapse code]
+            </button>
+            <CodeBlockClient code={fullCode} lang={language} />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1">
+            <span className="font-mono text-[11px] text-text-secondary sm:text-[12px] whitespace-pre-wrap">
+              {previewLines}
+            </span>
+            {hasMoreLines && (
+              <button
+                type="button"
+                onClick={() => setIsExpanded(true)}
+                className="self-start font-mono text-[11px] text-text-tertiary hover:text-text-secondary sm:text-[12px]"
+              >
+                [+ expand code]
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    )
+  }
+)
+
+LeaderboardCodeCollapsible.displayName = 'LeaderboardCodeCollapsible'
+
 const LeaderboardLanguage = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
   ({ className, children, ...props }, ref) => {
     return (
@@ -98,4 +151,11 @@ const LeaderboardLanguage = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanE
 
 LeaderboardLanguage.displayName = 'LeaderboardLanguage'
 
-export { LeaderboardRow, LeaderboardRank, LeaderboardScore, LeaderboardCode, LeaderboardLanguage }
+export {
+  LeaderboardRow,
+  LeaderboardRank,
+  LeaderboardScore,
+  LeaderboardCode,
+  LeaderboardCodeCollapsible,
+  LeaderboardLanguage,
+}
