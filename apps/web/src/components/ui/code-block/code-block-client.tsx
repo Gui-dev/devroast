@@ -6,14 +6,14 @@ import { codeToHtml } from 'shiki'
 import type { BundledLanguage } from 'shiki'
 
 type CodeBlockClientProps = {
-  code: string
-  lang: BundledLanguage
+  code?: string
+  lang?: BundledLanguage
   className?: string
 }
 
 export function CodeBlockClient({
   code = '',
-  lang = 'javascript',
+  lang = 'javascript' as BundledLanguage,
   className,
 }: CodeBlockClientProps) {
   const [html, setHtml] = useState<string>('')
