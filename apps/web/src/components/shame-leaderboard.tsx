@@ -42,7 +42,6 @@ export function ShameLeaderboard() {
           <LeaderboardRank>{item.rank}</LeaderboardRank>
           <LeaderboardScore>{item.score}</LeaderboardScore>
           <LeaderboardCodeCollapsible
-            codePreview={item.codePreview}
             fullCode={item.code}
             language={item.language as BundledLanguage}
           />

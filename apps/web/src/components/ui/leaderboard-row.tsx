@@ -84,17 +84,17 @@ const LeaderboardCode = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanEleme
 LeaderboardCode.displayName = 'LeaderboardCode'
 
 type LeaderboardCodeCollapsibleProps = HTMLAttributes<HTMLDivElement> & {
-  codePreview: string
   fullCode: string
   language: BundledLanguage
 }
 
 const LeaderboardCodeCollapsible = forwardRef<HTMLDivElement, LeaderboardCodeCollapsibleProps>(
-  ({ className, codePreview, fullCode, language, ...props }, ref) => {
+  ({ className, fullCode = '', language, ...props }, ref) => {
     const [isExpanded, setIsExpanded] = useState(false)
 
-    const previewLines = codePreview.split('\n').slice(0, 3).join('\n')
-    const hasMoreLines = codePreview.split('\n').length > 3
+    const lines = fullCode.split('\n')
+    const previewCode = lines.slice(0, 3).join('\n')
+    const hasMoreLines = lines.length > 3
 
     return (
       <div ref={ref} className={cn('min-w-0 flex-1', className)} {...props}>
@@ -111,9 +111,7 @@ const LeaderboardCodeCollapsible = forwardRef<HTMLDivElement, LeaderboardCodeCol
           </div>
         ) : (
           <div className="flex flex-col gap-1">
-            <span className="font-mono text-[11px] text-text-secondary sm:text-[12px] whitespace-pre-wrap">
-              {previewLines}
-            </span>
+            <CodeBlockClient code={previewCode} lang={language} />
             {hasMoreLines && (
               <button
                 type="button"
