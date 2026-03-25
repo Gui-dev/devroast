@@ -51,3 +51,43 @@ export function ShameLeaderboard() {
     </div>
   )
 }
+
+export function ShameLeaderboardWithFooter({
+  total,
+}: {
+  total: number | string
+}) {
+  const { data: roasts } = useQuery({
+    queryKey: ['worstRoasts'],
+    queryFn: fetchWorstRoasts,
+  })
+
+  if (!roasts || roasts.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="flex flex-col border border-border-primary">
+      <TableHeader />
+      {roasts.map(item => (
+        <LeaderboardRow key={item.id}>
+          <LeaderboardRank>{item.rank}</LeaderboardRank>
+          <LeaderboardScore>{item.score}</LeaderboardScore>
+          <LeaderboardCodeCollapsible
+            fullCode={item.code}
+            language={item.language as BundledLanguage}
+          />
+          <LeaderboardLanguage>{item.language}</LeaderboardLanguage>
+        </LeaderboardRow>
+      ))}
+      <p className="py-3 text-center font-sans text-xs text-text-tertiary sm:text-sm">
+        {'showing top 3 of '}
+        {total}
+        {' · '}
+        <a href="/leaderboard" className="text-text-secondary hover:underline">
+          view full leaderboard &gt;&gt;
+        </a>
+      </p>
+    </div>
+  )
+}
