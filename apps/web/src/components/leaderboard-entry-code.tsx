@@ -1,5 +1,6 @@
 'use client'
 
+import { ChevronDown } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 
 const COLLAPSED_HEIGHT = 120
@@ -25,15 +26,22 @@ export function LeaderboardEntryCode({ children, lineCount }: LeaderboardEntryCo
       >
         {children}
         {!open && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-bg-input to-transparent" />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-bg-input to-transparent"
+            aria-hidden
+          />
         )}
       </div>
       <button
         type="button"
         onClick={() => setOpen(prev => !prev)}
-        className="flex w-full items-center justify-center gap-1.5 border-t border-border-primary py-2 font-mono text-xs text-text-secondary transition-colors hover:bg-bg-elevated hover:text-text-primary"
+        className="flex w-full items-center justify-center gap-1.5 border-t border-border-primary py-2 font-mono text-xs text-text-secondary transition-colors cursor-pointer enabled:hover:bg-bg-elevated enabled:hover:text-text-primary"
       >
         {open ? 'show less' : 'show more'}
+        <ChevronDown
+          size={12}
+          className={`transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+        />
       </button>
     </div>
   )
