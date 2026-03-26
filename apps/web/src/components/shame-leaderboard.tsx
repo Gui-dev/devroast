@@ -15,9 +15,9 @@ function scoreColor(score: number): string {
 
 function ShameLeaderboardHeader() {
   return (
-    <div className="flex h-10 items-center gap-4 border-b border-border-primary bg-bg-surface px-5 sm:gap-6">
-      <span className="w-10 font-mono text-[12px] font-medium text-text-tertiary">#</span>
-      <span className="w-[60px] font-mono text-[12px] font-medium text-text-tertiary">score</span>
+    <div className="flex h-10 items-center gap-4 border-b border-border-primary bg-bg-input px-5">
+      <span className="w-[50px] font-mono text-[12px] font-medium text-text-tertiary">#</span>
+      <span className="w-[70px] font-mono text-[12px] font-medium text-text-tertiary">score</span>
       <span className="flex-1 font-mono text-[12px] font-medium text-text-tertiary">code</span>
       <span className="hidden w-[100px] font-mono text-[12px] font-medium text-text-tertiary sm:block">
         lang
@@ -39,22 +39,24 @@ function ShameLeaderboardItem({
   }
 }) {
   return (
-    <article key={item.id} className="flex flex-col border border-border-primary overflow-hidden">
-      <div className="flex h-12 items-center gap-4 border-b border-border-primary px-5 sm:gap-6">
-        <div className="w-10 flex items-center">
+    <article className="border-b border-border-primary">
+      <div className="flex items-center gap-4 px-5 py-4">
+        <div className="w-[50px] flex items-center">
           <span className="font-mono text-[12px] font-medium text-text-tertiary">{item.rank}</span>
         </div>
-        <div className="w-[60px] flex items-center">
+        <div className="w-[70px] flex items-center">
           <span className={`font-mono text-[12px] font-bold ${scoreColor(item.score)}`}>
             {item.score.toFixed(1)}
           </span>
         </div>
         <div className="flex-1 min-w-0">
-          <CodeBlockClient
-            code={item.code}
-            lang={item.language as BundledLanguage}
-            className="border-0"
-          />
+          <LeaderboardEntryCode lineCount={item.lineCount}>
+            <CodeBlockClient
+              code={item.code}
+              lang={item.language as BundledLanguage}
+              className="border-0"
+            />
+          </LeaderboardEntryCode>
         </div>
         <div className="hidden w-[100px] items-center sm:flex">
           <span className="font-mono text-xs text-text-secondary">{item.language}</span>

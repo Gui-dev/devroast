@@ -23,12 +23,22 @@ export default function HomePage() {
       <div className="h-4 sm:h-8" />
 
       <section className="mx-auto flex w-full max-w-240 flex-col gap-4 sm:gap-6">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="font-mono text-base font-bold text-text-primary sm:text-lg">
-            {'//'} the worst code on the internet, ranked by shame
-          </h2>
-          <Link href="/leaderboard">$ view_all &gt;&gt;</Link>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-sm font-bold text-accent-green">{'//'}</span>
+            <h2 className="font-mono text-sm font-bold text-text-primary">shame_leaderboard</h2>
+          </div>
+          <Link
+            href="/leaderboard"
+            className="rounded border border-border-primary px-3 py-1.5 font-mono text-xs text-text-secondary no-underline transition-colors hover:text-text-primary"
+          >
+            $ view_all &gt;&gt;
+          </Link>
         </div>
+
+        <p className="font-mono text-[13px] text-text-tertiary">
+          {'//'} the worst code on the internet, ranked by shame
+        </p>
 
         <ShameLeaderboardSection />
       </section>
