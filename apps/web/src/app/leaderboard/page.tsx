@@ -1,87 +1,37 @@
-import { LeaderboardEntry } from '@/components/ui/leaderboard-entry'
+'use cache'
+import { fetchLeaderboard } from '@/app/hooks/use-leaderboard'
+import { fetchMetrics } from '@/app/hooks/use-metrics'
+import { LeaderboardClient } from '@/components/leaderboard-client'
+import { getQueryClient } from '@/lib/get-query-client'
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query'
 import type { Metadata } from 'next'
-import type { BundledLanguage } from 'shiki'
+import { cacheLife } from 'next/cache'
+import { Suspense } from 'react'
 
 export const metadata: Metadata = {
   title: 'Shame Leaderboard | devroast',
   description: 'The most roasted code on the internet, ranked by shame.',
 }
 
-interface LeaderboardData {
-  rank: number
-  score: number
-  language: BundledLanguage
-  code: string
-}
+export default async function LeaderboardPage() {
+  cacheLife('hours')
 
-const leaderboardData: LeaderboardData[] = [
-  {
-    rank: 1,
-    score: 9.8,
-    language: 'javascript',
-    code: `function calculateTotal(items) {
-  var total = 0;
-  for (var i = 0; i < items.length; i++) {
-    total = total + items[i].price;
-  }
-  return total;
-}`,
-  },
-  {
-    rank: 2,
-    score: 9.2,
-    language: 'typescript',
-    code: `async function fetchUser(id: string) {
-  const response = await fetch('/api/user/' + id);
-  const data = response.json();
-  return data;
-}`,
-  },
-  {
-    rank: 3,
-    score: 8.9,
-    language: 'python',
-    code: `def get_user(id):
-    conn = sqlite3.connect('app.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE id = " + id)
-    return cursor.fetchone()`,
-  },
-  {
-    rank: 4,
-    score: 7.5,
-    language: 'javascript',
-    code: `const handleClick = () => {
-  console.log('clicked');
-  doSomething();
-  doSomethingElse();
-  fetchData();
-  updateUI();
-}`,
-  },
-  {
-    rank: 5,
-    score: 6.8,
-    language: 'typescript',
-    code: `type Props = {
-  items: Array<any>;
-  onSelect: (item: any) => void;
-}
+  const queryClient = getQueryClient()
 
-function List({ items, onSelect }: Props) {
-  return items.map(item => (
-    <div onClick={() => onSelect(item)} key={item.id}>
-      {item.name}
-    </div>
-  ));
-}`,
-  },
-]
+  const [metricsData] = await Promise.all([
+    queryClient.fetchQuery({
+      queryKey: ['metrics'],
+      queryFn: fetchMetrics,
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['leaderboard'],
+      queryFn: fetchLeaderboard,
+    }),
+  ])
 
-const TOTAL_SUBMISSIONS = 2847
-const AVG_SCORE = 4.2
+  const totalSubmissions = metricsData?.totalRoasts ?? 0
+  const avgScore = metricsData?.avgScore ?? 0
 
-export default function LeaderboardPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <div className="flex flex-col gap-6 px-4 sm:gap-8 sm:px-6 md:px-10 py-8 md:py-10 lg:py-16">
@@ -98,23 +48,35 @@ export default function LeaderboardPage() {
             {'//'} the most roasted code on the internet
           </p>
           <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-text-tertiary sm:text-sm">
-            <span>{TOTAL_SUBMISSIONS.toLocaleString()} submissions</span>
+            <span>{totalSubmissions.toLocaleString()} submissions</span>
             <span>·</span>
-            <span>avg score: {AVG_SCORE}/10</span>
+            <span>avg score: {avgScore}/10</span>
           </div>
         </div>
 
-        <div className="flex flex-col gap-5">
-          {leaderboardData.map(entry => (
-            <LeaderboardEntry
-              key={entry.rank}
-              rank={entry.rank}
-              score={entry.score}
-              language={entry.language}
-              code={entry.code}
-            />
-          ))}
-        </div>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <Suspense
+            fallback={
+              <div className="flex flex-col gap-5">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <div
+                    key={`skeleton-${i.toString()}`}
+                    className="border border-border-primary overflow-hidden"
+                  >
+                    <div className="flex h-12 items-center gap-6 border-b border-border-primary px-5">
+                      <span className="inline-block w-6 h-4 animate-pulse bg-text-tertiary/20 rounded" />
+                      <span className="inline-block w-12 h-4 animate-pulse bg-text-tertiary/20 rounded" />
+                      <span className="inline-block w-16 h-4 animate-pulse bg-text-tertiary/20 rounded" />
+                    </div>
+                    <div className="h-32 bg-bg-input animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            }
+          >
+            <LeaderboardClient />
+          </Suspense>
+        </HydrationBoundary>
       </div>
     </div>
   )

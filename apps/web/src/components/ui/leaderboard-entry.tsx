@@ -2,7 +2,8 @@ import { cn } from '@/lib/cn'
 import { type HTMLAttributes, forwardRef } from 'react'
 import type { BundledLanguage } from 'shiki'
 import { type VariantProps, tv } from 'tailwind-variants'
-import { CodeBlock } from './code-block'
+import { LeaderboardEntryCode } from '../leaderboard-entry-code'
+import { CodeBlockClient } from './code-block/code-block-client'
 
 const leaderboardEntryStyles = tv({
   base: ['border border-border-primary overflow-hidden'],
@@ -24,11 +25,12 @@ export type LeaderboardEntryProps = VariantProps<typeof leaderboardEntryStyles> 
     score: number
     language: BundledLanguage
     code: string
+    lineCount?: number
     filename?: string
   }
 
 const LeaderboardEntry = forwardRef<HTMLDivElement, LeaderboardEntryProps>(
-  ({ className, variant, rank, score, language, code, filename, ...props }, ref) => {
+  ({ className, variant, rank, score, language, code, lineCount, filename, ...props }, ref) => {
     const getScoreVariant = (s: number) => {
       if (s >= 7) return 'critical'
       if (s >= 4) return 'warning'
@@ -36,6 +38,8 @@ const LeaderboardEntry = forwardRef<HTMLDivElement, LeaderboardEntryProps>(
     }
 
     const scoreVariant = getScoreVariant(score)
+    const safeCode = code ?? ''
+    const effectiveLineCount = lineCount ?? (safeCode ? safeCode.split('\n').length : 0)
 
     return (
       <div
@@ -70,7 +74,9 @@ const LeaderboardEntry = forwardRef<HTMLDivElement, LeaderboardEntryProps>(
           </div>
           <span className="font-mono text-xs text-text-tertiary">anonymous</span>
         </div>
-        <CodeBlock code={code} lang={language} />
+        <LeaderboardEntryCode lineCount={effectiveLineCount}>
+          <CodeBlockClient code={safeCode} lang={language} className="border-0" />
+        </LeaderboardEntryCode>
       </div>
     )
   }

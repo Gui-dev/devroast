@@ -1,70 +1,10 @@
 'use client'
 
 import { fetchWorstRoasts } from '@/app/hooks/use-worst-roasts'
-import { LeaderboardEntryCode } from '@/components/leaderboard-entry-code'
-import { CodeBlockClient } from '@/components/ui/code-block/code-block-client'
+import { LeaderboardEntry } from '@/components/ui/leaderboard-entry'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import type { BundledLanguage } from 'shiki'
-
-function scoreColor(score: number): string {
-  if (score <= 3) return 'text-accent-red'
-  if (score <= 6) return 'text-accent-amber'
-  return 'text-accent-green'
-}
-
-function ShameLeaderboardHeader() {
-  return (
-    <div className="flex h-10 items-center gap-4 border-b border-border-primary bg-bg-input px-5">
-      <span className="w-[50px] font-mono text-[12px] font-medium text-text-tertiary">#</span>
-      <span className="w-[70px] font-mono text-[12px] font-medium text-text-tertiary">score</span>
-      <span className="flex-1 font-mono text-[12px] font-medium text-text-tertiary">code</span>
-      <span className="hidden w-[100px] font-mono text-[12px] font-medium text-text-tertiary sm:block">
-        lang
-      </span>
-    </div>
-  )
-}
-
-function ShameLeaderboardItem({
-  item,
-}: {
-  item: {
-    id: string
-    rank: number
-    score: number
-    language: string
-    code: string
-    lineCount: number
-  }
-}) {
-  return (
-    <article className="border-b border-border-primary">
-      <div className="flex items-center gap-4 px-5 py-4">
-        <div className="w-[50px] flex items-center">
-          <span className="font-mono text-[12px] font-medium text-text-tertiary">{item.rank}</span>
-        </div>
-        <div className="w-[70px] flex items-center">
-          <span className={`font-mono text-[12px] font-bold ${scoreColor(item.score)}`}>
-            {item.score.toFixed(1)}
-          </span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <LeaderboardEntryCode lineCount={item.lineCount}>
-            <CodeBlockClient
-              code={item.code}
-              lang={item.language as BundledLanguage}
-              className="border-0"
-            />
-          </LeaderboardEntryCode>
-        </div>
-        <div className="hidden w-[100px] items-center sm:flex">
-          <span className="font-mono text-xs text-text-secondary">{item.language}</span>
-        </div>
-      </div>
-    </article>
-  )
-}
 
 export function ShameLeaderboard() {
   const { data: roasts } = useQuery({
@@ -77,10 +17,16 @@ export function ShameLeaderboard() {
   }
 
   return (
-    <div className="flex flex-col border border-border-primary">
-      <ShameLeaderboardHeader />
+    <div className="flex flex-col gap-5">
       {roasts.map(item => (
-        <ShameLeaderboardItem key={item.id} item={item} />
+        <LeaderboardEntry
+          key={item.id}
+          rank={item.rank}
+          score={item.score}
+          language={item.language as BundledLanguage}
+          code={item.code}
+          lineCount={item.lineCount}
+        />
       ))}
     </div>
   )
@@ -98,10 +44,16 @@ export function ShameLeaderboardWithFooter({ total }: { total: number | string }
 
   return (
     <>
-      <div className="flex flex-col border border-border-primary">
-        <ShameLeaderboardHeader />
+      <div className="flex flex-col gap-5">
         {roasts.map(item => (
-          <ShameLeaderboardItem key={item.id} item={item} />
+          <LeaderboardEntry
+            key={item.id}
+            rank={item.rank}
+            score={item.score}
+            language={item.language as BundledLanguage}
+            code={item.code}
+            lineCount={item.lineCount}
+          />
         ))}
       </div>
       <p className="font-mono text-xs text-text-tertiary text-center">
