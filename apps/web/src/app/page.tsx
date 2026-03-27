@@ -1,9 +1,12 @@
+'use cache'
 import { HomeClient } from '@/components/home-client'
 import { MetricsServer } from '@/components/metrics-server'
 import { ShameLeaderboardSection } from '@/components/shame-leaderboard-section'
 import { Link } from '@/components/ui/link'
+import { cacheLife } from 'next/cache'
 
-export default function HomePage() {
+export default async function HomePage() {
+  cacheLife('hours')
   return (
     <div className="flex flex-col gap-6 px-4 sm:gap-8 sm:px-6 md:px-10 py-12 sm:py-16 md:py-20">
       <div className="flex flex-col gap-3 text-center">
