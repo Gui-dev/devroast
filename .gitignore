@@ -22,3 +22,6 @@ out/
 .cache/
 turbo.json
 .turbo
+
+# Worktrees
+.worktrees/
