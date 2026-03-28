@@ -8,12 +8,22 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod'
+import type { OllamaClientInterface } from './lib/ollama-client.js'
+import { OllamaClient } from './lib/ollama-client.js'
+import { AnalysisIssueRepository } from './repositories/analysis-issue.repository.js'
+import { CodeDiffRepository } from './repositories/code-diff.repository.js'
 import { LeaderboardRepository } from './repositories/leaderboard.repository.js'
 import { RoastRepository } from './repositories/roast.repository.js'
 import { healthRoutes } from './routes/health.routes.js'
 import { leaderboardRoutes } from './routes/leaderboard.routes.js'
 import { metricsRoutes } from './routes/metrics.routes.js'
 import { roastRoutes } from './routes/roast.routes.js'
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    ollamaClient: OllamaClientInterface
+  }
+}
 
 export async function buildApp() {
   const fastify = Fastify({
@@ -59,9 +69,18 @@ export async function buildApp() {
 
   const roastRepository = new RoastRepository()
   const leaderboardRepository = new LeaderboardRepository()
+  const analysisIssueRepository = new AnalysisIssueRepository()
+  const codeDiffRepository = new CodeDiffRepository()
+  const ollamaClient = new OllamaClient()
+
+  fastify.decorate('ollamaClient', ollamaClient)
 
   await fastify.register(healthRoutes)
-  await fastify.register(roastRoutes, { repository: roastRepository })
+  await fastify.register(roastRoutes, {
+    repository: roastRepository,
+    analysisIssueRepository,
+    codeDiffRepository,
+  })
   await fastify.register(metricsRoutes, { repository: roastRepository })
   await fastify.register(leaderboardRoutes, { repository: leaderboardRepository })
 

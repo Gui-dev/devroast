@@ -1,6 +1,10 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
-import type { RoastContract } from '../contracts/roast.contract.js'
+import type {
+  AnalysisIssueContract,
+  CodeDiffContract,
+  RoastContract,
+} from '../contracts/roast.contract.js'
 import type { CreateRoastInput } from '../entities/roast.entity.js'
 import { CreateRoastUseCase } from '../use-cases/create-roast.use-case.js'
 import { GetRoastUseCase } from '../use-cases/get-roast.use-case.js'
@@ -14,8 +18,17 @@ import {
 
 export function roastRoutes(
   fastify: FastifyInstance,
-  { repository }: { repository: RoastContract }
+  {
+    repository,
+    analysisIssueRepository,
+    codeDiffRepository,
+  }: {
+    repository: RoastContract
+    analysisIssueRepository: AnalysisIssueContract
+    codeDiffRepository: CodeDiffContract
+  }
 ) {
+  const ollamaClient = fastify.ollamaClient
   fastify.post<{ Body: CreateRoastInput }>(
     '/roasts',
     {
@@ -30,7 +43,12 @@ export function roastRoutes(
     },
     async (request, reply) => {
       try {
-        const useCase = new CreateRoastUseCase(repository)
+        const useCase = new CreateRoastUseCase(
+          repository,
+          ollamaClient,
+          analysisIssueRepository,
+          codeDiffRepository
+        )
         const roast = await useCase.execute(request.body)
 
         const response = {
