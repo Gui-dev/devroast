@@ -60,6 +60,10 @@ export class OllamaClient {
 
     clearTimeout(timeout)
 
+    if (!response.ok) {
+      throw new Error('Ollama unavailable')
+    }
+
     const data = (await response.json()) as { message?: { content?: string } }
     const content = data.message?.content
 
