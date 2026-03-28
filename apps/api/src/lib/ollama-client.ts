@@ -14,7 +14,11 @@ interface OllamaAnalysis {
 
 type RoastMode = 'honest' | 'roast'
 
-export class OllamaClient {
+export interface OllamaClientInterface {
+  analyze(code: string, language: string, roastMode: RoastMode): Promise<OllamaAnalysis>
+}
+
+export class OllamaClient implements OllamaClientInterface {
   private baseUrl: string
   private model: string
 
