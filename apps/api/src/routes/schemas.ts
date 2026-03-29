@@ -47,6 +47,28 @@ export const GetRoastParamsSchema = z.object({
   id: z.string(),
 })
 
+export const IssueResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  severity: z.enum(['critical', 'warning', 'good']),
+  issueType: z.string(),
+  lineNumber: z.number().nullable(),
+})
+
+export const DiffResponseSchema = z.object({
+  id: z.string(),
+  removedLine: z.string().nullable(),
+  addedLine: z.string().nullable(),
+  context: z.string().nullable(),
+  lineNumber: z.number().nullable(),
+})
+
+export const RoastFullResponseSchema = RoastResponseSchema.extend({
+  issues: z.array(IssueResponseSchema),
+  diffs: z.array(DiffResponseSchema),
+})
+
 export const ListRoastsQuerySchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(10).optional(),
 })
@@ -72,3 +94,6 @@ export type RoastResponse = z.infer<typeof RoastResponseSchema>
 export type GetRoastParams = z.infer<typeof GetRoastParamsSchema>
 export type ListRoastsQuery = z.infer<typeof ListRoastsQuerySchema>
 export type WorstRoast = z.infer<typeof WorstRoastResponseSchema>
+export type IssueResponse = z.infer<typeof IssueResponseSchema>
+export type DiffResponse = z.infer<typeof DiffResponseSchema>
+export type RoastFullResponse = z.infer<typeof RoastFullResponseSchema>
