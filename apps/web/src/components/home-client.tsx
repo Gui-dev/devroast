@@ -1,5 +1,6 @@
 'use client'
 
+import { useCreateRoast } from '@/app/hooks/use-create-roast'
 import { Button } from '@/components/ui/button'
 import { CodeEditor } from '@/components/ui/code-editor'
 import { Toggle } from '@/components/ui/toggle'
@@ -9,13 +10,34 @@ export function HomeClient() {
   const [code, setCode] = useState('')
   const [language, setLanguage] = useState<string | null>(null)
   const [isOverLimit, setIsOverLimit] = useState(false)
+  const [isRoastMode, setIsRoastMode] = useState(true)
+  const createRoast = useCreateRoast()
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode)
   }
 
+  const handleLanguageChange = (newLanguage: string | null) => {
+    setLanguage(newLanguage)
+  }
+
   const handleLimitExceeded = (exceeded: boolean) => {
     setIsOverLimit(exceeded)
+  }
+
+  const handleSubmit = async () => {
+    if (!code || isOverLimit) return
+
+    try {
+      await createRoast.mutateAsync({
+        code,
+        language: language || 'javascript',
+        roastMode: isRoastMode ? 'roast' : 'honest',
+      })
+    } catch (error) {
+      // Error will be handled by react-query, but we can log it
+      console.error('Failed to create roast:', error)
+    }
   }
 
   return (
@@ -25,7 +47,7 @@ export function HomeClient() {
           value={code}
           language={language}
           onChange={handleCodeChange}
-          onLanguageChange={setLanguage}
+          onLanguageChange={handleLanguageChange}
           onLimitExceeded={handleLimitExceeded}
         />
       </div>
@@ -52,12 +74,18 @@ export function HomeClient() {
 
       <div className="mx-auto flex w-full max-w-195 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <Toggle label="roast mode" />
+          <Toggle
+            label="roast mode"
+            defaultPressed={isRoastMode}
+            onPressedChange={setIsRoastMode}
+          />
           <span className="font-sans text-xs text-text-tertiary">
             {'//'} maximum sarcasm enabled
           </span>
         </div>
-        <Button disabled={!code || isOverLimit}>$ roast_my_code</Button>
+        <Button disabled={!code || isOverLimit || createRoast.isPending} onClick={handleSubmit}>
+          {createRoast.isPending ? '$ roasting...' : '$ roast_my_code'}
+        </Button>
       </div>
     </>
   )

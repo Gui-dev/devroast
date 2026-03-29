@@ -1,7 +1,16 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { HomeClient } from './home-client'
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}))
+
+vi.mock('@/app/hooks/use-create-roast', () => ({
+  useCreateRoast: () => ({ mutate: vi.fn(), isPending: false }),
+}))
 
 vi.mock('@/components/ui/code-editor', () => ({
   CodeEditor: ({
@@ -46,22 +55,31 @@ vi.mock('@/components/ui/button', () => ({
   ),
 }))
 
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+  return ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  )
+}
+
 describe('<HomeClient />', () => {
   it('renders code editor and toggle', () => {
-    render(<HomeClient />)
+    render(<HomeClient />, { wrapper: createWrapper() })
 
     expect(screen.getByTestId('code-editor')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'roast mode' })).toBeInTheDocument()
   })
 
   it('renders submit button', () => {
-    render(<HomeClient />)
+    render(<HomeClient />, { wrapper: createWrapper() })
 
     expect(screen.getByRole('button', { name: '$ roast_my_code' })).toBeInTheDocument()
   })
 
   it('disables submit button when code is empty', () => {
-    render(<HomeClient />)
+    render(<HomeClient />, { wrapper: createWrapper() })
 
     const button = screen.getByRole('button', { name: '$ roast_my_code' }) as HTMLButtonElement
     expect(button.disabled).toBe(true)
@@ -69,7 +87,7 @@ describe('<HomeClient />', () => {
 
   it('shows limit exceeded warning when isOverLimit is true', async () => {
     const user = userEvent.setup()
-    render(<HomeClient />)
+    render(<HomeClient />, { wrapper: createWrapper() })
 
     expect(screen.queryByText('limite de 2.000 caracteres excedido')).not.toBeInTheDocument()
 
@@ -80,7 +98,7 @@ describe('<HomeClient />', () => {
 
   it('hides limit warning when isOverLimit becomes false', async () => {
     const user = userEvent.setup()
-    render(<HomeClient />)
+    render(<HomeClient />, { wrapper: createWrapper() })
 
     await user.click(screen.getByTestId('trigger-limit'))
     expect(await screen.findByText('limite de 2.000 caracteres excedido')).toBeInTheDocument()
