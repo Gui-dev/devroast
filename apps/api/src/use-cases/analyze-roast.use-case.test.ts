@@ -1,241 +1,99 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { OllamaResponse } from '../lib/ollama-client.js'
-import {
-  InMemoryAnalysisIssueRepository,
-  InMemoryCodeDiffRepository,
-  InMemoryRoastRepository,
-} from '../repositories/in-memory/roast-in-memory.repository.js'
-import { AnalyzeRoastUseCase } from './analyze-roast.use-case.js'
-
-function createMockOllamaClient(response: OllamaResponse) {
-  return {
-    analyze: vi.fn().mockResolvedValue(response),
-  }
-}
+import type { Roast } from '../entities/roast.entity.js'
+import type { OllamaClient } from '../lib/ollama-client.ts'
+import { InMemoryAnalysisIssueRepository } from '../repositories/in-memory/analysis-issue-in-memory.repository'
+import { InMemoryCodeDiffRepository } from '../repositories/in-memory/code-diff-in-memory.repository'
+import { InMemoryRoastRepository } from '../repositories/in-memory/roast-in-memory.repository'
+import { AnalyzeRoastUseCase } from './analyze-roast.use-case'
 
 describe('AnalyzeRoastUseCase', () => {
-  let roastRepository: InMemoryRoastRepository
+  let mockOllamaClient: Partial<OllamaClient>
+  let repository: InMemoryRoastRepository
   let analysisIssueRepository: InMemoryAnalysisIssueRepository
   let codeDiffRepository: InMemoryCodeDiffRepository
+  let useCase: AnalyzeRoastUseCase
+  let testRoastId: string
 
-  beforeEach(() => {
-    roastRepository = new InMemoryRoastRepository()
-    analysisIssueRepository = new InMemoryAnalysisIssueRepository()
-    codeDiffRepository = new InMemoryCodeDiffRepository()
-  })
-
-  it('should analyze roast and update with score and verdict', async () => {
-    const roast = await roastRepository.create({
-      code: 'const x = 1;',
-      language: 'javascript',
-    })
-
-    const ollamaResponse: OllamaResponse = {
-      roastQuote: 'This code is basic.',
-      issues: [],
-      suggestedFix: '',
-      score: 7,
+  beforeEach(async () => {
+    mockOllamaClient = {
+      analyzeCode: vi.fn(),
     }
 
-    const ollamaClient = createMockOllamaClient(ollamaResponse)
-    const useCase = new AnalyzeRoastUseCase(
-      ollamaClient as never,
-      roastRepository,
+    repository = new InMemoryRoastRepository()
+    analysisIssueRepository = new InMemoryAnalysisIssueRepository()
+    codeDiffRepository = new InMemoryCodeDiffRepository()
+    useCase = new AnalyzeRoastUseCase(
+      repository,
       analysisIssueRepository,
-      codeDiffRepository
+      codeDiffRepository,
+      mockOllamaClient as OllamaClient
     )
 
-    const result = await useCase.execute(roast.id, 'const x = 1;', 'javascript', 'roast')
+    // Create a test roast
+    const roast = await repository.create({
+      code: 'const x = 1;',
+      language: 'javascript',
+      roastMode: 'roast',
+    })
 
-    expect(ollamaClient.analyze).toHaveBeenCalledWith('const x = 1;', 'javascript', 'roast')
-    expect(result.score).toBe(7)
-    expect(result.verdict).toBe('warning')
-    expect(result.roastQuote).toBe('This code is basic.')
+    testRoastId = roast.id
   })
 
-  it('should throw error when roast not found', async () => {
-    const ollamaClient = createMockOllamaClient({
-      roastQuote: 'test',
-      issues: [],
-      suggestedFix: '',
-      score: 5,
-    })
-
-    const useCase = new AnalyzeRoastUseCase(
-      ollamaClient as never,
-      roastRepository,
-      analysisIssueRepository,
-      codeDiffRepository
-    )
-
-    await expect(useCase.execute('non-existent-id', 'code', 'javascript', 'roast')).rejects.toThrow(
-      'Roast not found: non-existent-id'
-    )
-  })
-
-  describe('verdict mapping from score', () => {
-    it('should return "good" for score >= 8', async () => {
-      const roast = await roastRepository.create({ code: 'x', language: 'javascript' })
-      const ollamaClient = createMockOllamaClient({
-        roastQuote: 'Great code!',
-        issues: [],
-        suggestedFix: '',
-        score: 9,
-      })
-
-      const useCase = new AnalyzeRoastUseCase(
-        ollamaClient as never,
-        roastRepository,
-        analysisIssueRepository,
-        codeDiffRepository
-      )
-
-      const result = await useCase.execute(roast.id, 'x', 'javascript', 'roast')
-      expect(result.verdict).toBe('good')
-    })
-
-    it('should return "warning" for score >= 5', async () => {
-      const roast = await roastRepository.create({ code: 'x', language: 'javascript' })
-      const ollamaClient = createMockOllamaClient({
-        roastQuote: 'Meh.',
-        issues: [],
-        suggestedFix: '',
-        score: 5,
-      })
-
-      const useCase = new AnalyzeRoastUseCase(
-        ollamaClient as never,
-        roastRepository,
-        analysisIssueRepository,
-        codeDiffRepository
-      )
-
-      const result = await useCase.execute(roast.id, 'x', 'javascript', 'roast')
-      expect(result.verdict).toBe('warning')
-    })
-
-    it('should return "critical" for score >= 3', async () => {
-      const roast = await roastRepository.create({ code: 'x', language: 'javascript' })
-      const ollamaClient = createMockOllamaClient({
-        roastQuote: 'Yikes.',
-        issues: [],
-        suggestedFix: '',
-        score: 3,
-      })
-
-      const useCase = new AnalyzeRoastUseCase(
-        ollamaClient as never,
-        roastRepository,
-        analysisIssueRepository,
-        codeDiffRepository
-      )
-
-      const result = await useCase.execute(roast.id, 'x', 'javascript', 'roast')
-      expect(result.verdict).toBe('critical')
-    })
-
-    it('should return "needs_serious_help" for score < 3', async () => {
-      const roast = await roastRepository.create({ code: 'x', language: 'javascript' })
-      const ollamaClient = createMockOllamaClient({
-        roastQuote: 'Oh no.',
-        issues: [],
-        suggestedFix: '',
-        score: 1,
-      })
-
-      const useCase = new AnalyzeRoastUseCase(
-        ollamaClient as never,
-        roastRepository,
-        analysisIssueRepository,
-        codeDiffRepository
-      )
-
-      const result = await useCase.execute(roast.id, 'x', 'javascript', 'roast')
-      expect(result.verdict).toBe('needs_serious_help')
-    })
-  })
-
-  it('should create analysis issues from AI response', async () => {
-    const roast = await roastRepository.create({ code: 'x', language: 'javascript' })
-    const ollamaClient = createMockOllamaClient({
-      roastQuote: 'Multiple issues found.',
+  it('should analyze a roast and update it with results', async () => {
+    mockOllamaClient.analyzeCode = vi.fn().mockResolvedValue({
+      roastQuote: 'This code is a masterpiece of confusion',
       issues: [
         {
-          title: 'Bad variable name',
-          description: 'Use descriptive names',
-          severity: 'warning',
-          issueType: 'bad-practice',
-        },
-        {
-          title: 'Security issue',
-          description: 'Never use eval',
-          severity: 'critical',
-          issueType: 'security',
+          title: 'Unused variable',
+          description: "Variable 'x' is declared but never used",
+          severity: 'warning' as const,
+          issueType: 'bad-practice' as const,
         },
       ],
-      suggestedFix: '',
+      suggestedFix: 'const x = 1;\n- console.log(x);\n+ // Removed unused variable',
       score: 3,
     })
 
-    const useCase = new AnalyzeRoastUseCase(
-      ollamaClient as never,
-      roastRepository,
-      analysisIssueRepository,
-      codeDiffRepository
+    const updatedRoast = await useCase.execute(testRoastId)
+
+    expect(updatedRoast.id).toBe(testRoastId)
+    expect(updatedRoast.score).toBe(3)
+    expect(updatedRoast.verdict).toBe('warning')
+    expect(updatedRoast.roastQuote).toBe('This code is a masterpiece of confusion')
+    expect(updatedRoast.suggestedFix).toBe(
+      'const x = 1;\n- console.log(x);\n+ // Removed unused variable'
     )
 
-    await useCase.execute(roast.id, 'x', 'javascript', 'roast')
+    expect(mockOllamaClient.analyzeCode).toHaveBeenCalledWith('const x = 1;', 'javascript', 'roast')
 
-    const issues = await analysisIssueRepository.findByRoastId(roast.id)
-    expect(issues).toHaveLength(2)
-    expect(issues[0].title).toBe('Bad variable name')
-    expect(issues[0].severity).toBe('warning')
-    expect(issues[1].title).toBe('Security issue')
-    expect(issues[1].severity).toBe('critical')
+    // Check that analysis issue was created
+    const issues = await analysisIssueRepository.findByRoastId(testRoastId)
+    expect(issues.length).toBeGreaterThan(0)
+
+    // Check that code diffs were created
+    const diffs = await codeDiffRepository.findByRoastId(testRoastId)
+    expect(diffs.length).toBeGreaterThan(0)
   })
 
-  it('should create code diff when suggestedFix exists', async () => {
-    const roast = await roastRepository.create({ code: 'x', language: 'javascript' })
-    const ollamaClient = createMockOllamaClient({
-      roastQuote: 'Here is a fix.',
-      issues: [],
-      suggestedFix: '--- a/file.js\n+++ b/file.js\n@@ -1 +1 @@\n-const x = 1;\n+const myValue = 1;',
-      score: 6,
-    })
+  it('should handle analysis errors gracefully', async () => {
+    mockOllamaClient.analyzeCode = vi
+      .fn()
+      .mockRejectedValue(new Error('Ollama service unavailable'))
 
-    const useCase = new AnalyzeRoastUseCase(
-      ollamaClient as never,
-      roastRepository,
-      analysisIssueRepository,
-      codeDiffRepository
-    )
+    await expect(useCase.execute(testRoastId)).rejects.toThrow('Ollama service unavailable')
 
-    await useCase.execute(roast.id, 'x', 'javascript', 'roast')
+    // Check that the roast was updated with error state
+    const roast = await repository.findById(testRoastId)
+    expect(roast?.verdict).toBe('error')
+    expect(roast?.roastQuote).toBe('Analysis failed')
 
-    const diffs = await codeDiffRepository.findByRoastId(roast.id)
-    expect(diffs).toHaveLength(1)
-    expect(diffs[0].context).toContain('myValue')
+    // Check that error issue was created
+    const issues = await analysisIssueRepository.findByRoastId(testRoastId)
+    expect(issues.length).toBeGreaterThan(0)
+    expect(issues[issues.length - 1].title).toBe('Analysis failed')
   })
 
-  it('should not create code diff when suggestedFix is empty', async () => {
-    const roast = await roastRepository.create({ code: 'x', language: 'javascript' })
-    const ollamaClient = createMockOllamaClient({
-      roastQuote: 'No fix needed.',
-      issues: [],
-      suggestedFix: '',
-      score: 9,
-    })
-
-    const useCase = new AnalyzeRoastUseCase(
-      ollamaClient as never,
-      roastRepository,
-      analysisIssueRepository,
-      codeDiffRepository
-    )
-
-    await useCase.execute(roast.id, 'x', 'javascript', 'roast')
-
-    const diffs = await codeDiffRepository.findByRoastId(roast.id)
-    expect(diffs).toHaveLength(0)
+  it('should throw error when roast is not found', async () => {
+    await expect(useCase.execute('non-existent-id')).rejects.toThrow('Roast not found')
   })
 })

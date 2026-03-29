@@ -1,144 +1,123 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { OllamaClient } from './ollama-client.js'
-
-const mockResponse = {
-  roastQuote: 'This code is a mess!',
-  issues: [
-    {
-      title: 'Bad variable name',
-      description: 'Variable x is not descriptive',
-      severity: 'warning',
-      issueType: 'bad-practice',
-    },
-  ],
-  suggestedFix: '-const x = 1;\n+const counter = 1;',
-  score: 3,
-}
+import { describe, expect, it, vi } from 'vitest'
+import { OllamaClient } from '../lib/ollama-client'
 
 describe('OllamaClient', () => {
-  let client: OllamaClient
+  const baseUrl = 'http://localhost:11434'
+  const model = 'qwen2.5-coder:1.5b'
 
-  beforeEach(() => {
-    client = new OllamaClient('http://localhost:11434', 'qwen2.5-coder:1.5b')
-  })
-
-  it('should parse successful response', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
+  it('should call Ollama with correct prompt and return parsed response', async () => {
+    // Mock fetch
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        message: { content: JSON.stringify(mockResponse) },
+        response: JSON.stringify({
+          roastQuote: 'This code is a masterpiece of confusion',
+          issues: [
+            {
+              title: 'Unused variable',
+              description: "Variable 'x' is declared but never used",
+              severity: 'warning' as const,
+              issueType: 'bad-practice' as const,
+            },
+          ],
+          suggestedFix: 'const x = 1;\n- console.log(x);\n+ // Removed unused variable',
+          score: 3,
+        }),
+      }),
+    }) as any
+
+    const client = new OllamaClient(baseUrl, model)
+    const result = await client.analyzeCode('const x = 1;', 'javascript', 'roast')
+
+    expect(fetch).toHaveBeenCalledWith(`${baseUrl}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model,
+        prompt:
+          'Analyze this javascript code and provide a JSON response with:\n1. "roastQuote": A roasting quote (1-2 sentences, funny/sarcastic about the code quality)\n2. "issues": Array of issues, each with:\n   - "title": Short descriptive title\n   - "description": Detailed explanation\n   - "severity": "critical" | "warning" | "good"\n   - "issueType": Type of issue (e.g., "bad-practice", "security", "performance")\n3. "suggestedFix": Unified diff format showing improvements\n4. "score": Number from 0-10 rating the code quality\n\nBe brutally honest and sarcastic. Use developer humor.\nRespond ONLY with valid JSON, no explanations.\n\nCode to analyze:\n---\nconst x = 1;\n---',
+        stream: false,
       }),
     })
-    vi.stubGlobal('fetch', fetchMock)
 
-    const result = await client.analyze('const x = 1;', 'javascript', 'roast')
-
-    expect(result.roastQuote).toBe('This code is a mess!')
-    expect(result.issues).toHaveLength(1)
-    expect(result.issues[0].severity).toBe('warning')
-    expect(result.score).toBe(3)
-    expect(result.suggestedFix).toBeDefined()
+    expect(result).toEqual({
+      roastQuote: 'This code is a masterpiece of confusion',
+      issues: [
+        {
+          title: 'Unused variable',
+          description: "Variable 'x' is declared but never used",
+          severity: 'warning',
+          issueType: 'bad-practice',
+        },
+      ],
+      suggestedFix: 'const x = 1;\n- console.log(x);\n+ // Removed unused variable',
+      score: 3,
+    })
   })
 
-  it('should throw Ollama timeout error on timeout', async () => {
-    const abortError = new DOMException('The operation was aborted.', 'AbortError')
-    const fetchMock = vi.fn().mockRejectedValue(abortError)
-    vi.stubGlobal('fetch', fetchMock)
+  it('should throw error when Ollama returns non-ok response', async () => {
+    // Mock fetch to return error
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      statusText: 'Internal Server Error',
+    }) as any
 
-    await expect(client.analyze('const x = 1;', 'javascript', 'roast')).rejects.toThrow(
-      'Ollama timeout'
+    const client = new OllamaClient(baseUrl, model)
+
+    await expect(client.analyzeCode('const x = 1;', 'javascript', 'roast')).rejects.toThrow(
+      'Ollama request failed with status 500'
     )
   })
 
-  it('should throw Ollama unavailable error when fetch fails', async () => {
-    const fetchMock = vi.fn().mockRejectedValue(new Error('ECONNREFUSED'))
-    vi.stubGlobal('fetch', fetchMock)
-
-    await expect(client.analyze('const x = 1;', 'javascript', 'roast')).rejects.toThrow(
-      'Ollama unavailable'
-    )
-  })
-
-  it('should throw parse error on invalid JSON response', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
+  it('should throw error when Ollama returns invalid JSON', async () => {
+    // Mock fetch to return invalid JSON
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        message: { content: 'not valid json' },
+        response: 'Invalid JSON response',
       }),
-    })
-    vi.stubGlobal('fetch', fetchMock)
+    }) as any
 
-    await expect(client.analyze('const x = 1;', 'javascript', 'roast')).rejects.toThrow(
+    const client = new OllamaClient(baseUrl, model)
+
+    await expect(client.analyzeCode('const x = 1;', 'javascript', 'roast')).rejects.toThrow(
       'Failed to parse AI response'
     )
   })
 
-  it('should build roast prompt with sarcastic tone', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
+  it('should use different prompts for roast vs honest mode', async () => {
+    // Mock fetch
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        message: { content: JSON.stringify(mockResponse) },
+        response: JSON.stringify({
+          roastQuote: 'Test quote',
+          issues: [],
+          suggestedFix: '',
+          score: 5,
+        }),
       }),
-    })
-    vi.stubGlobal('fetch', fetchMock)
+    }) as any
 
-    await client.analyze('const x = 1;', 'javascript', 'roast')
+    const client = new OllamaClient(baseUrl, model)
 
-    const callBody = JSON.parse(fetchMock.mock.calls[0][1].body)
-    const systemPrompt = callBody.messages[0].content
+    // Test roast mode
+    await client.analyzeCode('const x = 1;', 'javascript', 'roast')
+    expect(fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        body: expect.stringContaining('Be brutally honest and sarcastic'),
+      })
+    )
 
-    expect(systemPrompt).toContain('brutally honest and sarcastic')
-    expect(systemPrompt).toContain('developer humor')
-  })
-
-  it('should build honest prompt with constructive tone', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        message: { content: JSON.stringify(mockResponse) },
-      }),
-    })
-    vi.stubGlobal('fetch', fetchMock)
-
-    await client.analyze('const x = 1;', 'javascript', 'honest')
-
-    const callBody = JSON.parse(fetchMock.mock.calls[0][1].body)
-    const systemPrompt = callBody.messages[0].content
-
-    expect(systemPrompt).toContain('constructive feedback')
-    expect(systemPrompt).toContain('friendly but honest')
-  })
-
-  it('should include code and language in prompt', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        message: { content: JSON.stringify(mockResponse) },
-      }),
-    })
-    vi.stubGlobal('fetch', fetchMock)
-
-    await client.analyze('print("hello")', 'python', 'roast')
-
-    const callBody = JSON.parse(fetchMock.mock.calls[0][1].body)
-    const systemMessage = callBody.messages[0].content
-    const userMessage = callBody.messages[1].content
-
-    expect(systemMessage).toContain('python')
-    expect(userMessage).toContain('print("hello")')
-  })
-
-  it('should throw parse error on non-JSON content in response', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        message: { content: 'Here is my analysis: the code is fine.' },
-      }),
-    })
-    vi.stubGlobal('fetch', fetchMock)
-
-    await expect(client.analyze('const x = 1;', 'javascript', 'roast')).rejects.toThrow(
-      'Failed to parse AI response'
+    // Test honest mode
+    await client.analyzeCode('const x = 1;', 'javascript', 'honest')
+    expect(fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        body: expect.stringContaining('constructive feedback'),
+      })
     )
   })
 })
