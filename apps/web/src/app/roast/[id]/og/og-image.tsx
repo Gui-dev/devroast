@@ -61,7 +61,7 @@ export function OgImage({ score, verdict, language, lineCount, roastQuote }: OgI
       </span>
 
       {/* Quote */}
-      <p tw="text-[#FAFAFA] text-center max-w-xl leading-relaxed" style={{ fontSize: 22 }}>
+      <p tw="text-[#FAFAFA] text-center max-w-xl" style={{ fontSize: 22, lineHeight: 1.5 }}>
         {roastQuote}
       </p>
     </div>
