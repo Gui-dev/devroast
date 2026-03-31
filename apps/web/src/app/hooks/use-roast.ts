@@ -22,7 +22,7 @@ export interface RoastFull {
   language: string
   lineCount: number
   score: number
-  verdict: string
+  verdict: 'needs_serious_help' | 'critical' | 'warning' | 'good'
   roastQuote: string | null
   roastMode: string
   suggestedFix: string | null
