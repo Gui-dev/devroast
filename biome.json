@@ -16,7 +16,9 @@
       "tailwind.config.*",
       "postcss.config.*",
       "next-env.d.ts",
-      "**/code-block.tsx"
+      "**/code-block.tsx",
+      ".storybook",
+      "storybook-static"
     ]
   },
   "formatter": {

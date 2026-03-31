@@ -11,7 +11,9 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "format": "biome format . --write",
-    "format:check": "biome format ."
+    "format:check": "biome format .",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@number-flow/react": "^0.6.0",
@@ -30,6 +32,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.0",
+    "@storybook/addon-a11y": "10.3.3",
+    "@storybook/nextjs-vite": "^10.3.3",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -39,6 +43,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "jsdom": "^29.0.1",
+    "storybook": "10.3.3",
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4",
     "typescript": "^5",
