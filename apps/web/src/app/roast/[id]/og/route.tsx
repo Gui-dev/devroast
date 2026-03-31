@@ -2,6 +2,8 @@ import { fetchRoast } from '@/app/hooks/use-roast'
 import { ImageResponse } from 'takumi-js/response'
 import { OgImage } from './og-image'
 
+export const revalidate = 3600
+
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   try {

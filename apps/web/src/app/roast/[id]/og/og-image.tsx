@@ -1,6 +1,5 @@
+import type { Verdict } from '@/app/hooks/use-roast'
 import { getScoreColor } from '@/lib/get-score-color'
-
-export type Verdict = 'needs_serious_help' | 'critical' | 'warning' | 'good'
 
 export interface OgImageProps {
   score: number
