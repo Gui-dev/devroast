@@ -69,7 +69,8 @@ function parseSuggestedFix(suggestedFix: string | null): DiffLineData[] {
     for (const line of blockLines) {
       const trimmed = line.trim()
       if (!trimmed) continue
-      if (trimmed === '---') continue
+      if (trimmed === '---' || trimmed === '+++') continue
+      if (trimmed.startsWith('@@')) continue
 
       if (trimmed.startsWith('-')) {
         result.push({

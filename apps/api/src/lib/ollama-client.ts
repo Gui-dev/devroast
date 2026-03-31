@@ -128,7 +128,11 @@ Analyze this ${language} code and provide a JSON response with:
    - "description": Detailed explanation
    - "severity": "critical" | "warning" | "good"
    - "issueType": Type of issue (e.g., "bad-practice", "security", "performance")
-3. "suggestedFix": Unified diff format showing improvements
+3. "suggestedFix": A unified diff string showing the exact code changes needed. Use the format:
+   Lines starting with "-" are removed (bad code)
+   Lines starting with "+" are added (improved code)
+   Lines without prefix are context (unchanged)
+   Example: "- var x = 1;\n+ const x = 1;\n  console.log(x);"
 4. "score": Number from 0-10 rating the code quality
 
 ${tone}

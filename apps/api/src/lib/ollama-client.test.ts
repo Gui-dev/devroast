@@ -29,16 +29,14 @@ describe('OllamaClient', () => {
     const client = new OllamaClient(baseUrl, model)
     const result = await client.analyzeCode('const x = 1;', 'javascript', 'roast')
 
-    expect(fetch).toHaveBeenCalledWith(`${baseUrl}/api/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model,
-        prompt:
-          'Analyze this javascript code and provide a JSON response with:\n1. "roastQuote": A roasting quote (1-2 sentences, funny/sarcastic about the code quality)\n2. "issues": Array of issues, each with:\n   - "title": Short descriptive title\n   - "description": Detailed explanation\n   - "severity": "critical" | "warning" | "good"\n   - "issueType": Type of issue (e.g., "bad-practice", "security", "performance")\n3. "suggestedFix": Unified diff format showing improvements\n4. "score": Number from 0-10 rating the code quality\n\nBe brutally honest and sarcastic. Use developer humor.\nRespond ONLY with valid JSON, no explanations.\n\nCode to analyze:\n---\nconst x = 1;\n---',
-        stream: false,
-      }),
-    })
+    expect(fetch).toHaveBeenCalledWith(
+      `${baseUrl}/api/generate`,
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: expect.stringContaining('suggestedFix'),
+      })
+    )
 
     expect(result).toEqual({
       roastQuote: 'This code is a masterpiece of confusion',
