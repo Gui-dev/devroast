@@ -102,6 +102,9 @@ importers:
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
+      takumi-js:
+        specifier: ^0.0.0
+        version: 0.0.0
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.0
@@ -2249,6 +2252,9 @@ packages:
   tailwindcss@4.2.2:
     resolution: {integrity: sha512-KWBIxs1Xb6NoLdMVqhbhgwZf2PGBpPEiwOqgI4pFIYbNTfBXiKYyWoTsXgBQ9WFg/OlhnvHaY+AEpW7wSmFo2Q==}
 
+  takumi-js@0.0.0:
+    resolution: {integrity: sha512-4da27LpT/AnmHsckqYZUqJDMlJ17yYUB0qJAJt3QkNntRYTVw9qDQ+4z3C4NKWDhzj15LoM+6OfPsx5RZuhsew==}
+
   tapable@2.3.0:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
     engines: {node: '>=6'}
@@ -4216,6 +4222,8 @@ snapshots:
       tailwind-merge: 3.5.0
 
   tailwindcss@4.2.2: {}
+
+  takumi-js@0.0.0: {}
 
   tapable@2.3.0: {}
 
