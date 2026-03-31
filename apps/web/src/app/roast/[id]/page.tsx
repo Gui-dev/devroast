@@ -21,6 +21,9 @@ export async function generateMetadata({ params }: RoastPageProps): Promise<Meta
   return {
     title: `Roast #${id.slice(0, 8)}... | devroast`,
     description: 'Your code has been thoroughly roasted.',
+    openGraph: {
+      images: [`/roast/${id}/og`],
+    },
   }
 }
 
