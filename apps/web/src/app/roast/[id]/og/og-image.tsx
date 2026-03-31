@@ -1,18 +1,16 @@
+import { getScoreColor } from '@/lib/get-score-color'
+
+export type Verdict = 'needs_serious_help' | 'critical' | 'warning' | 'good'
+
 export interface OgImageProps {
   score: number
-  verdict: string
+  verdict: Verdict
   language: string
   lineCount: number
   roastQuote: string
 }
 
-function getScoreColor(score: number): string {
-  if (score >= 7) return '#10B981'
-  if (score >= 4) return '#F59E0B'
-  return '#EF4444'
-}
-
-function getVerdictColor(verdict: string): string {
+function getVerdictColor(verdict: Verdict): string {
   switch (verdict) {
     case 'needs_serious_help':
     case 'critical':
@@ -21,8 +19,6 @@ function getVerdictColor(verdict: string): string {
       return '#F59E0B'
     case 'good':
       return '#10B981'
-    default:
-      return '#FAFAFA'
   }
 }
 
