@@ -18,20 +18,10 @@ A web application that analyzes and rates code with brutally honest feedback.
 
 ## Screenshots
 
-> [!TIP]
-> Add your project screenshots here!
->
-> Recommended images:
-> - Homepage with code editor
-> - Roast result page with score and feedback
-> - Leaderboard page
-> - Mobile responsive view
+![Homepage](./.screens/home.png)
+![Leaderboard](./.screens/leaderboard.png)
+![Roasted](./.screens/roasted.png)
 
-<!-- 
-Example:
-![Homepage](./docs/screenshots/homepage.png)
-![Roast Result](./docs/screenshots/roast-result.png)
--->
 
 ---
 
@@ -89,7 +79,7 @@ The application uses **AI-powered code analysis** via Ollama (local LLM) to gene
 
 ### Using the Application
 
-1. Visit the live application at `https://devroast.app`
+1. Visit the application at `http://localhost:3000`
 2. Paste your code in the editor
 3. Select the language (or let us auto-detect it)
 4. Click "Roast My Code"
