@@ -62,7 +62,7 @@ describe('<LeaderboardEntry />', () => {
       <LeaderboardEntry rank={10} score={2.0} language="javascript" code="x" />
     )
 
-    expect(container.firstChild).toHaveClass('border-accent-green/30')
+    expect(container.firstChild).toHaveClass('border-accent-yellow/30')
   })
 
   it('renders amber color for rank 1', () => {

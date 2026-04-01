@@ -8,7 +8,7 @@ const cardStyles = tv({
     variant: {
       critical: 'border-l-4 border-l-accent-red',
       warning: 'border-l-4 border-l-accent-amber',
-      good: 'border-l-4 border-l-accent-green',
+      good: 'border-l-4 border-l-accent-yellow',
       needs_serious_help: 'border-l-4 border-l-accent-red',
     },
   },

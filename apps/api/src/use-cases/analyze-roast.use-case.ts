@@ -2,14 +2,14 @@ import type { RoastContract } from '../contracts/roast.contract.js'
 import type { AnalysisIssueContract } from '../contracts/roast.contract.js'
 import type { CodeDiffContract } from '../contracts/roast.contract.js'
 import type { Roast, UpdateRoastInput } from '../entities/roast.entity.js'
-import type { OllamaClient } from '../lib/ollama-client.ts'
+import type { OllamaClientInterface } from '../lib/ollama-client.js'
 
 export class AnalyzeRoastUseCase {
   constructor(
     private readonly repository: RoastContract,
     private readonly analysisIssueRepository: AnalysisIssueContract,
     private readonly codeDiffRepository: CodeDiffContract,
-    private readonly ollamaClient: OllamaClient
+    private readonly ollamaClient: OllamaClientInterface
   ) {}
 
   async execute(roastId: string): Promise<Roast> {
@@ -22,7 +22,7 @@ export class AnalyzeRoastUseCase {
 
     // Analyze with Ollama
     try {
-      const analysis = await this.ollamaClient.analyzeCode(
+      const analysis = await this.ollamaClient.analyze(
         roast.code,
         roast.language,
         roast.roastMode as 'roast' | 'honest'

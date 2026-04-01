@@ -36,7 +36,7 @@ export default function ComponentsPage() {
 
       <section className="flex flex-col gap-6">
         <h2 className="text-sm font-bold text-text-primary">
-          <span className="text-accent-green">{'//'}</span> navbar
+          <span className="text-accent-yellow">{'//'}</span> navbar
         </h2>
 
         <div className="border border-border-primary">
@@ -46,12 +46,12 @@ export default function ComponentsPage() {
 
       <section className="flex flex-col gap-6">
         <h2 className="text-sm font-bold text-text-primary">
-          <span className="text-accent-green">{'//'}</span> link
+          <span className="text-accent-yellow">{'//'}</span> link
         </h2>
 
         <div className="flex flex-wrap items-center gap-4">
           <Link href="/leaderboard">leaderboard</Link>
-          <Link href="/" className="text-accent-green">
+          <Link href="/" className="text-accent-yellow">
             active link
           </Link>
         </div>
@@ -59,7 +59,7 @@ export default function ComponentsPage() {
 
       <section className="flex flex-col gap-6">
         <h2 className="text-sm font-bold text-text-primary">
-          <span className="text-accent-green">{'//'}</span> buttons
+          <span className="text-accent-yellow">{'//'}</span> buttons
         </h2>
 
         <div className="flex flex-wrap items-center gap-4">
@@ -78,7 +78,7 @@ export default function ComponentsPage() {
 
       <section className="flex flex-col gap-6">
         <h2 className="text-sm font-bold text-text-primary">
-          <span className="text-accent-green">{'//'}</span> toggle
+          <span className="text-accent-yellow">{'//'}</span> toggle
         </h2>
 
         <div className="flex flex-wrap items-center gap-8">
@@ -89,7 +89,7 @@ export default function ComponentsPage() {
 
       <section className="flex flex-col gap-6">
         <h2 className="text-sm font-bold text-text-primary">
-          <span className="text-accent-green">{'//'}</span> badge_status
+          <span className="text-accent-yellow">{'//'}</span> badge_status
         </h2>
 
         <div className="flex flex-wrap items-center gap-4">
@@ -102,7 +102,7 @@ export default function ComponentsPage() {
 
       <section className="flex flex-col gap-6">
         <h2 className="text-sm font-bold text-text-primary">
-          <span className="text-accent-green">{'//'}</span> diff_line
+          <span className="text-accent-yellow">{'//'}</span> diff_line
         </h2>
 
         <div className="flex w-fit flex-col gap-1 overflow-hidden rounded-md border border-border-primary">
@@ -114,7 +114,7 @@ export default function ComponentsPage() {
 
       <section className="flex flex-col gap-6">
         <h2 className="text-sm font-bold text-text-primary">
-          <span className="text-accent-green">{'//'}</span> code_block
+          <span className="text-accent-yellow">{'//'}</span> code_block
         </h2>
 
         <div className="overflow-hidden rounded-md border border-border-primary">
@@ -125,7 +125,7 @@ export default function ComponentsPage() {
 
       <section className="flex flex-col gap-6">
         <h2 className="text-sm font-bold text-text-primary">
-          <span className="text-accent-green">{'//'}</span> card
+          <span className="text-accent-yellow">{'//'}</span> card
         </h2>
 
         <div className="flex flex-col gap-4">
@@ -178,7 +178,7 @@ export default function ComponentsPage() {
 
       <section className="flex flex-col gap-6">
         <h2 className="text-sm font-bold text-text-primary">
-          <span className="text-accent-green">{'//'}</span> leaderboard_row
+          <span className="text-accent-yellow">{'//'}</span> leaderboard_row
         </h2>
 
         <div className="flex w-full max-w-2xl flex-col">
@@ -209,7 +209,7 @@ export default function ComponentsPage() {
 
       <section className="flex flex-col gap-6">
         <h2 className="text-sm font-bold text-text-primary">
-          <span className="text-accent-green">{'//'}</span> score_ring
+          <span className="text-accent-yellow">{'//'}</span> score_ring
         </h2>
 
         <div className="flex flex-wrap items-center gap-8">

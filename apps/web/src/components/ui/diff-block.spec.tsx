@@ -120,14 +120,14 @@ describe('<DiffBlock />', () => {
     expect(redDot).not.toBeNull()
   })
 
-  it('renders green dot indicator for suggested fix section', async () => {
+  it('renders yellow dot indicator for suggested fix section', async () => {
     mockedCodeToHtml.mockResolvedValue('<pre><code>code</code></pre>')
 
     await act(async () => {
       renderDiffBlock([{ id: 'add-0', type: 'added', content: 'new code' }])
     })
 
-    const greenDot = document.querySelector('.rounded-full.bg-accent-green')
-    expect(greenDot).not.toBeNull()
+    const yellowDot = document.querySelector('.rounded-full.bg-accent-yellow')
+    expect(yellowDot).not.toBeNull()
   })
 })

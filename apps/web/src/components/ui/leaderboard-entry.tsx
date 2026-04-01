@@ -11,7 +11,7 @@ const leaderboardEntryStyles = tv({
     variant: {
       critical: 'border-accent-red/30',
       warning: 'border-accent-amber/30',
-      good: 'border-accent-green/30',
+      good: 'border-accent-yellow/30',
     },
   },
   defaultVariants: {
@@ -65,7 +65,7 @@ const LeaderboardEntry = forwardRef<HTMLDivElement, LeaderboardEntryProps>(
                 'font-mono text-sm font-bold',
                 scoreVariant === 'critical' && 'text-accent-red',
                 scoreVariant === 'warning' && 'text-accent-amber',
-                scoreVariant === 'good' && 'text-accent-green'
+                scoreVariant === 'good' && 'text-accent-yellow'
               )}
             >
               {score.toFixed(1)}/10

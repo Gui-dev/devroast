@@ -45,7 +45,7 @@ function CodeBlockHeader({ filename }: { filename?: string }) {
     <div className="flex h-10 items-center gap-3 border-b border-border-primary px-4">
       <span className="size-2.5 rounded-full bg-accent-red" />
       <span className="size-2.5 rounded-full bg-accent-amber" />
-      <span className="size-2.5 rounded-full bg-accent-green" />
+      <span className="size-2.5 rounded-full bg-accent-yellow" />
       <span className="flex-1" />
       {filename && (
         <span className="font-mono text-xs text-text-tertiary">{filename}</span>

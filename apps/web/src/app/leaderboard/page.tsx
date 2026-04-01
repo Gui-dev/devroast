@@ -37,7 +37,7 @@ export default async function LeaderboardPage() {
       <div className="flex flex-col gap-6 px-4 sm:gap-8 sm:px-6 md:px-10 py-8 md:py-10 lg:py-16">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <span className="font-mono text-2xl font-bold text-accent-green sm:text-3xl lg:text-4xl">
+            <span className="font-mono text-2xl font-bold text-accent-yellow sm:text-3xl lg:text-4xl">
               &gt;
             </span>
             <h1 className="font-mono text-2xl font-bold text-text-primary sm:text-3xl lg:text-4xl">

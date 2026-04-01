@@ -1,3 +1,5 @@
+export type Verdict = 'needs_serious_help' | 'critical' | 'warning' | 'good'
+
 export interface RoastIssue {
   id: string
   title: string
@@ -22,7 +24,7 @@ export interface RoastFull {
   language: string
   lineCount: number
   score: number
-  verdict: string
+  verdict: Verdict
   roastQuote: string | null
   roastMode: string
   suggestedFix: string | null

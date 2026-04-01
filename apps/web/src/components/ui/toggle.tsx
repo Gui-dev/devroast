@@ -30,7 +30,7 @@ const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
         <div
           className={cn(
             'relative h-5.5 w-10 rounded-full p-1',
-            pressed ? 'bg-accent-green' : 'bg-border-primary'
+            pressed ? 'bg-accent-yellow' : 'bg-border-primary'
           )}
         >
           <div
@@ -44,7 +44,7 @@ const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
           <span
             className={cn(
               'font-mono text-[12px]',
-              pressed ? 'text-accent-green' : 'text-text-secondary'
+              pressed ? 'text-accent-yellow' : 'text-text-secondary'
             )}
           >
             {label}

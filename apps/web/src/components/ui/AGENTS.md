@@ -195,7 +195,7 @@ text-text-secondary /* #6b7280 */
 text-text-tertiary  /* #4b5563 */
 
 /* Accent */
-text-accent-green  /* #10b981 */
+text-accent-yellow  /* oklch(90.5% 0.182 98.111) */
 text-accent-amber  /* #f59e0b */
 text-accent-red    /* #ef4444 */
 

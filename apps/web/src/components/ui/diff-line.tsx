@@ -26,7 +26,7 @@ const DiffLine = forwardRef<HTMLDivElement, DiffLineProps>(
           className={cn(
             'w-4 text-center',
             variant === 'removed' && 'text-accent-red',
-            variant === 'added' && 'text-accent-green',
+            variant === 'added' && 'text-accent-yellow',
             variant === 'context' && 'text-text-tertiary'
           )}
         >

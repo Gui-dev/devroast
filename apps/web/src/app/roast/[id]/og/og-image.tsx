@@ -1,91 +1,59 @@
-import { getOgScoreColor } from '@/lib/get-og-score-color'
-import { getVerdictColor } from '@/lib/get-verdict-color'
+import type { Verdict } from '@/app/hooks/use-roast'
+import { getScoreColor } from '@/lib/get-score-color'
 
 export interface OgImageProps {
   score: number
-  verdict: string
+  verdict: Verdict
   language: string
   lineCount: number
   roastQuote: string | null
 }
 
+function getVerdictColor(verdict: Verdict): string {
+  switch (verdict) {
+    case 'needs_serious_help':
+    case 'critical':
+      return '#EF4444'
+    case 'warning':
+      return '#F59E0B'
+    case 'good':
+      return '#10B981'
+  }
+}
+
 export function OgImage({ score, verdict, language, lineCount, roastQuote }: OgImageProps) {
-  const scoreColor = getOgScoreColor(score)
+  const scoreColor = getScoreColor(score)
   const verdictColor = getVerdictColor(verdict)
+  const displayVerdict = verdict.replace(/_/g, ' ')
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 28,
-        padding: 64,
-        width: 1200,
-        height: 630,
-        backgroundColor: '#0A0A0A',
-        border: '1px solid #2A2A2A',
-        fontFamily: 'Geist Mono, monospace',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          alignSelf: 'flex-start',
-        }}
-      >
-        <span style={{ fontSize: 24, fontWeight: 'bold', color: '#10B981' }}>{'>'}</span>
-        <span style={{ fontSize: 20, color: '#FAFAFA' }}>devroast</span>
+    <div tw="w-full h-full bg-[#0A0A0A] border border-[#2A2A2A] flex flex-col items-center justify-center gap-7 p-16">
+      <div tw="flex items-center gap-2">
+        <span tw="text-[#10B981] text-2xl font-bold">&gt;</span>
+        <span tw="text-[#FAFAFA] text-xl">devroast</span>
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: 8,
-        }}
-      >
-        <span style={{ fontSize: 160, fontWeight: '900', color: scoreColor }}>{score}</span>
-        <span style={{ fontSize: 56, color: '#4B5563' }}>/10</span>
+      <div tw="flex items-end gap-1">
+        <span tw="font-black leading-none" style={{ fontSize: 160, color: scoreColor }}>
+          {score}
+        </span>
+        <span tw="text-[#4B5563] leading-none" style={{ fontSize: 56 }}>
+          /10
+        </span>
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}
-      >
-        <div
-          style={{
-            width: 12,
-            height: 12,
-            borderRadius: '50%',
-            backgroundColor: verdictColor,
-          }}
-        />
-        <span style={{ fontSize: 20, color: verdictColor }}>{verdict.replace(/_/g, ' ')}</span>
+      <div tw="flex items-center gap-2">
+        <div tw="rounded-full" style={{ width: 12, height: 12, backgroundColor: verdictColor }} />
+        <span style={{ fontSize: 20, color: verdictColor }}>{displayVerdict}</span>
       </div>
 
-      <div style={{ fontSize: 16, color: '#4B5563' }}>
+      <span tw="text-[#4B5563] text-base">
         lang: {language} · {lineCount} lines
-      </div>
+      </span>
 
       {roastQuote && (
-        <p
-          style={{
-            fontSize: 22,
-            color: '#FAFAFA',
-            lineHeight: 1.5,
-            textAlign: 'center',
-            maxWidth: 800,
-            margin: 0,
-          }}
-        >
-          "{roastQuote}"
+        <p tw="text-[#FAFAFA] text-center max-w-xl" style={{ fontSize: 22, lineHeight: 1.5 }}>
+          {roastQuote}
         </p>
       )}
     </div>

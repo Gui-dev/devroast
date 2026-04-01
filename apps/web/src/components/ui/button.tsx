@@ -10,7 +10,7 @@ const buttonStyles = tv({
   ],
   variants: {
     variant: {
-      default: 'bg-accent-green text-[#0A0A0A] hover:bg-accent-green/90',
+      default: 'bg-accent-yellow text-[#1a2e1c] hover:bg-accent-yellow/90',
       secondary:
         'border border-border-primary bg-transparent text-text-primary hover:bg-border-primary/50',
       link: 'border border-border-primary bg-transparent text-text-secondary hover:text-text-primary',

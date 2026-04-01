@@ -131,7 +131,7 @@ function RoastContent({ roast, id }: { roast: RoastFull; id: string }) {
             <div className="flex items-center gap-3">
               <Link
                 href={`/share/${id}`}
-                className="rounded-md border border-border-primary px-4 py-2 font-mono text-sm text-text-secondary transition-colors hover:border-accent-green hover:text-accent-green"
+                className="rounded-md border border-border-primary px-4 py-2 font-mono text-sm text-text-secondary transition-colors hover:border-accent-yellow hover:text-accent-yellow"
               >
                 share
               </Link>
@@ -143,7 +143,7 @@ function RoastContent({ roast, id }: { roast: RoastFull; id: string }) {
 
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-base font-bold text-accent-green sm:text-lg">
+            <span className="font-mono text-base font-bold text-accent-yellow sm:text-lg">
               {'//'}
             </span>
             <h2 className="font-mono text-base font-bold text-text-primary sm:text-lg">
@@ -158,7 +158,7 @@ function RoastContent({ roast, id }: { roast: RoastFull; id: string }) {
 
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-base font-bold text-accent-green sm:text-lg">
+            <span className="font-mono text-base font-bold text-accent-yellow sm:text-lg">
               {'//'}
             </span>
             <h2 className="font-mono text-base font-bold text-text-primary sm:text-lg">
@@ -197,7 +197,7 @@ function RoastContent({ roast, id }: { roast: RoastFull; id: string }) {
 
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-base font-bold text-accent-green sm:text-lg">
+            <span className="font-mono text-base font-bold text-accent-yellow sm:text-lg">
               {'//'}
             </span>
             <h2 className="font-mono text-base font-bold text-text-primary sm:text-lg">

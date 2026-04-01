@@ -11,7 +11,7 @@ export default async function HomePage() {
     <div className="flex flex-col gap-6 px-4 sm:gap-8 sm:px-6 md:px-10 py-12 sm:py-16 md:py-20">
       <div className="flex flex-col gap-3 text-center">
         <h1 className="font-mono text-2xl font-bold text-text-primary sm:text-3xl lg:text-4xl">
-          <span className="text-accent-green">$ </span>
+          <span className="text-accent-yellow">$ </span>
           <span>paste your code. get roasted.</span>
         </h1>
         <p className="font-sans text-sm text-text-secondary">
@@ -28,7 +28,7 @@ export default async function HomePage() {
       <section className="mx-auto flex w-full max-w-240 flex-col gap-4 sm:gap-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-sm font-bold text-accent-green">{'//'}</span>
+            <span className="font-mono text-sm font-bold text-accent-yellow">{'//'}</span>
             <h2 className="font-mono text-sm font-bold text-text-primary">shame_leaderboard</h2>
           </div>
           <Link

@@ -4,6 +4,7 @@ import { useCreateRoast } from '@/app/hooks/use-create-roast'
 import { Button } from '@/components/ui/button'
 import { CodeEditor } from '@/components/ui/code-editor'
 import { Toggle } from '@/components/ui/toggle'
+import { normalizeLanguageForApi } from '@/lib/detect-language'
 import { useState } from 'react'
 
 export function HomeClient() {
@@ -31,7 +32,7 @@ export function HomeClient() {
     try {
       await createRoast.mutateAsync({
         code,
-        language: language || 'javascript',
+        language: normalizeLanguageForApi(language || 'javascript'),
         roastMode: isRoastMode ? 'roast' : 'honest',
       })
     } catch (error) {

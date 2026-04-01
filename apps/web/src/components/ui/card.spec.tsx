@@ -27,7 +27,7 @@ describe('<Card />', () => {
     const { container } = render(<Card variant="good">Good</Card>)
     const card = container.firstChild as HTMLElement
 
-    expect(card.className).toContain('border-l-accent-green')
+    expect(card.className).toContain('border-l-accent-yellow')
   })
 
   it('renders needs_serious_help variant', () => {

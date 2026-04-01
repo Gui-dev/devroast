@@ -17,11 +17,11 @@ describe('Badge', () => {
     expect(badge.className).toContain('text-accent-amber')
   })
 
-  it('renders good variant with green text', () => {
+  it('renders good variant with yellow text', () => {
     render(<Badge variant="good">Success</Badge>)
     const badge = screen.getByText('Success')
     expect(badge).toBeInTheDocument()
-    expect(badge.className).toContain('text-accent-green')
+    expect(badge.className).toContain('text-accent-yellow')
   })
 
   it('renders needs_serious_help variant with red text and larger font', () => {

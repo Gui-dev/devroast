@@ -13,7 +13,7 @@ describe('<Button />', () => {
     render(<Button>Default</Button>)
     const button = screen.getByRole('button')
 
-    expect(button.className).toContain('bg-accent-green')
+    expect(button.className).toContain('bg-accent-yellow')
   })
 
   it('renders secondary variant', () => {

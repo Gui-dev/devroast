@@ -7,6 +7,31 @@ type LanguageEntry = {
   eager?: boolean
 }
 
+const SUPPORTED_LANGUAGES = [
+  'javascript',
+  'typescript',
+  'python',
+  'java',
+  'csharp',
+  'cpp',
+  'php',
+  'ruby',
+  'go',
+  'rust',
+  'swift',
+  'kotlin',
+  'html',
+  'css',
+  'sql',
+  'bash',
+  'json',
+  'yaml',
+  'c',
+  'markdown',
+] as const
+
+export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number]
+
 const LANGUAGES: Record<string, LanguageEntry> = {
   javascript: {
     name: 'JavaScript',
@@ -122,14 +147,10 @@ const LANGUAGES: Record<string, LanguageEntry> = {
     shikiId: 'kotlin',
     hljsId: 'kotlin',
   },
-  dart: {
-    name: 'Dart',
-    shikiId: 'dart',
-    hljsId: 'dart',
-  },
 } as const
 
 const LANGUAGE_OPTIONS = Object.entries(LANGUAGES)
+  .filter(([key]) => SUPPORTED_LANGUAGES.includes(key as SupportedLanguage))
   .sort(([, a], [, b]) => a.name.localeCompare(b.name))
   .map(([key, entry]) => ({ value: key, label: entry.name }))
 
@@ -450,24 +471,38 @@ function detectByHeuristics(code: string): string | null {
 
 export function detectLanguage(code: string): string {
   const shebangResult = detectByShebang(code)
-  if (shebangResult) return shebangResult
+  if (shebangResult && SUPPORTED_LANGUAGES.includes(shebangResult as SupportedLanguage)) {
+    return shebangResult
+  }
 
   const heuristicResult = detectByHeuristics(code)
-  if (heuristicResult) return heuristicResult
+  if (heuristicResult) {
+    if (heuristicResult === 'jsx') return 'javascript'
+    if (heuristicResult === 'tsx') return 'typescript'
+    if (SUPPORTED_LANGUAGES.includes(heuristicResult as SupportedLanguage)) {
+      return heuristicResult
+    }
+  }
 
   try {
     const result = hljs.highlightAuto(code, HLJS_DETECTION_LANGUAGES)
-    console.log('hljs result:', result.language)
     if (result.language) {
       const mapped = hljsIdToLanguageKey(result.language)
-      console.log('mapped:', mapped)
-      if (mapped) return mapped
+      if (mapped && SUPPORTED_LANGUAGES.includes(mapped as SupportedLanguage)) {
+        return mapped
+      }
     }
   } catch {
     // ignore errors
   }
 
   return 'javascript'
+}
+
+export function normalizeLanguageForApi(language: string): string {
+  if (language === 'jsx') return 'javascript'
+  if (language === 'tsx') return 'typescript'
+  return language
 }
 
 export {

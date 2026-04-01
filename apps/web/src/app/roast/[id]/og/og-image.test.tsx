@@ -1,10 +1,11 @@
+import type { Verdict } from '@/app/hooks/use-roast'
 import { describe, expect, it } from 'vitest'
 import { OgImage } from './og-image'
 
 describe('OgImage', () => {
   const defaultProps = {
     score: 3.5,
-    verdict: 'needs_serious_help',
+    verdict: 'needs_serious_help' as Verdict,
     language: 'javascript',
     lineCount: 7,
     roastQuote: 'this code was written during a power outage',
@@ -22,7 +23,7 @@ describe('OgImage', () => {
   })
 
   it('displays the verdict text', () => {
-    const component = OgImage({ ...defaultProps, verdict: 'needs_serious_help' })
+    const component = OgImage({ ...defaultProps, verdict: 'needs_serious_help' as Verdict })
     expect(component).toBeDefined()
   })
 

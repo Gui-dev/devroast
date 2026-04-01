@@ -104,9 +104,9 @@ async function DiffBlock({ lines, lang = 'javascript', className }: DiffBlockPro
       )}
 
       {addedLines.length > 0 && (
-        <div className="border border-accent-green/30 overflow-hidden">
-          <div className="flex items-center gap-2 border-b border-accent-green/20 bg-diff-added px-4 py-2.5">
-            <span className="size-2 rounded-full bg-accent-green" />
+        <div className="border border-accent-yellow/30 overflow-hidden">
+          <div className="flex items-center gap-2 border-b border-accent-yellow/20 bg-diff-added px-4 py-2.5">
+            <span className="size-2 rounded-full bg-accent-yellow" />
             <span className="font-mono text-sm text-text-secondary">suggested fix</span>
           </div>
           <div className="flex flex-col">
@@ -117,7 +117,7 @@ async function DiffBlock({ lines, lang = 'javascript', className }: DiffBlockPro
                 }
                 className="flex items-center gap-2 bg-diff-added px-4 py-2 font-mono text-[13px]"
               >
-                <span className="w-4 text-center text-accent-green">+</span>
+                <span className="w-4 text-center text-accent-yellow">+</span>
                 <span
                   className="flex-1 text-text-primary"
                   dangerouslySetInnerHTML={{ __html: line.html }}

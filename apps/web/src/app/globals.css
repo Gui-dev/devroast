@@ -6,7 +6,7 @@
   --font-sans: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation
     Mono, Courier New, monospace;
 
-  --color-accent-green: #10b981;
+  --color-accent-yellow: oklch(90.5% 0.182 98.111);
   --color-accent-amber: #f59e0b;
   --color-accent-cyan: #06b6d4;
   --color-accent-red: #ef4444;

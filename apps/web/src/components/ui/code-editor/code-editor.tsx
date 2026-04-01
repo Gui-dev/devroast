@@ -113,7 +113,7 @@ function CodeEditor({
       <div className="flex h-10 items-center gap-2 border-b border-border-primary px-4">
         <span className="size-3 rounded-full bg-accent-red" />
         <span className="size-3 rounded-full bg-accent-amber" />
-        <span className="size-3 rounded-full bg-accent-green" />
+        <span className="size-3 rounded-full bg-accent-yellow" />
         <span className="flex-1" />
 
         <div className="relative flex items-center">
@@ -189,8 +189,8 @@ function CodeEditor({
             className={twMerge(
               'relative z-10 min-h-80 w-full resize-none overflow-auto bg-transparent px-4 py-4 font-mono text-xs leading-[1.625] outline-none [tab-size:2]',
               hasHighlight
-                ? 'text-transparent caret-accent-green selection:bg-white/10'
-                : 'text-text-primary placeholder:text-text-tertiary caret-accent-green'
+                ? 'text-transparent caret-accent-yellow selection:bg-white/10'
+                : 'text-text-primary placeholder:text-text-tertiary caret-accent-yellow'
             )}
           />
         </div>

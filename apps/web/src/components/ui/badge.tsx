@@ -8,7 +8,7 @@ const badgeStyles = tv({
     variant: {
       critical: 'text-accent-red',
       warning: 'text-accent-amber',
-      good: 'text-accent-green',
+      good: 'text-accent-yellow',
       needs_serious_help: 'text-accent-red text-[13px]',
     },
   },
@@ -28,7 +28,7 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
             'size-2 rounded-full',
             variant === 'critical' && 'bg-accent-red',
             variant === 'warning' && 'bg-accent-amber',
-            variant === 'good' && 'bg-accent-green',
+            variant === 'good' && 'bg-accent-yellow',
             variant === 'needs_serious_help' && 'bg-accent-red'
           )}
         />
