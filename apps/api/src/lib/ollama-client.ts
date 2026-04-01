@@ -21,16 +21,18 @@ export interface OllamaClientInterface {
 export class OllamaClient implements OllamaClientInterface {
   private baseUrl: string
   private model: string
+  private timeout: number
 
   constructor() {
     this.baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434'
     this.model = process.env.OLLAMA_MODEL || 'qwen2.5-coder:1.5b'
+    this.timeout = Number.parseInt(process.env.OLLAMA_TIMEOUT || '120000', 10)
   }
 
   async analyze(code: string, language: string, roastMode: RoastMode): Promise<OllamaAnalysis> {
     const prompt = this.buildPrompt(code, language, roastMode)
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 60_000)
+    const timeout = setTimeout(() => controller.abort(), this.timeout)
 
     try {
       const response = await fetch(`${this.baseUrl}/api/generate`, {
@@ -53,7 +55,7 @@ export class OllamaClient implements OllamaClientInterface {
       return JSON.parse(data.response) as OllamaAnalysis
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
-        throw new Error('Ollama timeout: request took longer than 60 seconds')
+        throw new Error(`Ollama timeout: request took longer than ${this.timeout / 1000} seconds`)
       }
       if (error instanceof Error && error.message.startsWith('Ollama unavailable')) {
         throw error
