@@ -1,3 +1,4 @@
+import { MswProvider } from '@/components/msw-provider'
 import { Navbar } from '@/components/navbar'
 import { Providers } from '@/components/providers'
 import type { Metadata } from 'next'
@@ -32,7 +33,9 @@ export default function RootLayout({
       <body>
         <Navbar />
         <main>
-          <Providers>{children}</Providers>
+          <MswProvider>
+            <Providers>{children}</Providers>
+          </MswProvider>
         </main>
       </body>
     </html>
