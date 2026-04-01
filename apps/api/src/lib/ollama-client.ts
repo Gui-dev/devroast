@@ -1,51 +1,85 @@
-import { generateObject } from 'ai'
-import { type OllamaProvider, createOllama } from 'ai-sdk-ollama'
-import { type AnalysisResult, AnalysisResultSchema } from './analysis-schema'
+interface OllamaIssue {
+  title: string
+  description: string
+  severity: 'critical' | 'warning' | 'good'
+  issueType: string
+}
 
-export class OllamaClient {
-  private model: ReturnType<OllamaProvider>
+interface OllamaAnalysis {
+  roastQuote: string
+  issues: OllamaIssue[]
+  suggestedFix: string
+  score: number
+}
 
-  constructor(baseUrl: string, modelName: string) {
-    const ollama = createOllama({ baseURL: baseUrl })
-    this.model = ollama(modelName)
+type RoastMode = 'honest' | 'roast'
+
+export interface OllamaClientInterface {
+  analyze(code: string, language: string, roastMode: RoastMode): Promise<OllamaAnalysis>
+}
+
+export class OllamaClient implements OllamaClientInterface {
+  private baseUrl: string
+  private model: string
+
+  constructor() {
+    this.baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434'
+    this.model = process.env.OLLAMA_MODEL || 'qwen2.5-coder:1.5b'
   }
 
-  async analyzeCode(
-    code: string,
-    language: string,
-    mode: 'roast' | 'honest'
-  ): Promise<AnalysisResult> {
-    const prompt = this.buildPrompt(code, language, mode)
+  async analyze(code: string, language: string, roastMode: RoastMode): Promise<OllamaAnalysis> {
+    const prompt = this.buildPrompt(code, language, roastMode)
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 60_000)
 
-    const { object } = await generateObject({
-      model: this.model,
-      schema: AnalysisResultSchema,
-      prompt,
-      abortSignal: AbortSignal.timeout(300000),
-    })
+    try {
+      const response = await fetch(`${this.baseUrl}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: this.model,
+          prompt,
+          stream: false,
+          format: 'json',
+        }),
+        signal: controller.signal,
+      })
 
-    return object
+      if (!response.ok) {
+        throw new Error(`Ollama unavailable: ${response.status} ${response.statusText}`)
+      }
+
+      const data = (await response.json()) as { response: string }
+      return JSON.parse(data.response) as OllamaAnalysis
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        throw new Error('Ollama timeout: request took longer than 60 seconds')
+      }
+      if (error instanceof Error && error.message.startsWith('Ollama unavailable')) {
+        throw error
+      }
+      throw new Error(
+        `Ollama unavailable: ${error instanceof Error ? error.message : 'unknown error'}`
+      )
+    } finally {
+      clearTimeout(timeout)
+    }
   }
 
-  private buildPrompt(code: string, language: string, mode: 'roast' | 'honest'): string {
+  private buildPrompt(code: string, language: string, roastMode: RoastMode): string {
     const tone =
-      mode === 'roast'
+      roastMode === 'roast'
         ? 'Be brutally honest and sarcastic. Use developer humor.'
-        : 'Provide constructive feedback with a friendly tone.'
+        : 'Provide constructive feedback, be friendly and helpful.'
 
-    return `
-Analyze this ${language} code and provide a JSON response with:
+    return `Analyze this ${language} code and provide a JSON response with:
 1. "roastQuote": A roasting quote (1-2 sentences, funny/sarcastic about the code quality)
 2. "issues": Array of issues, each with:
    - "title": Short descriptive title
    - "description": Detailed explanation
    - "severity": "critical" | "warning" | "good"
    - "issueType": Type of issue (e.g., "bad-practice", "security", "performance")
-3. "suggestedFix": A unified diff string showing the exact code changes needed. Use the format:
-   Lines starting with "-" are removed (bad code)
-   Lines starting with "+" are added (improved code)
-   Lines without prefix are context (unchanged)
-   Example: "- var x = 1;\n+ const x = 1;\n  console.log(x);"
+3. "suggestedFix": Unified diff format showing improvements
 4. "score": Number from 0-10 rating the code quality
 
 ${tone}
@@ -55,6 +89,6 @@ Code to analyze:
 ---
 ${code}
 ---
-`.trim()
+`
   }
 }

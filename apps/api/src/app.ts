@@ -8,6 +8,7 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod'
+import type { OllamaClientInterface } from './lib/ollama-client.js'
 import { OllamaClient } from './lib/ollama-client.js'
 import { AnalysisIssueRepository } from './repositories/analysis-issue.repository.js'
 import { CodeDiffRepository } from './repositories/code-diff.repository.js'
@@ -18,10 +19,15 @@ import { leaderboardRoutes } from './routes/leaderboard.routes.js'
 import { metricsRoutes } from './routes/metrics.routes.js'
 import { roastRoutes } from './routes/roast.routes.js'
 
+declare module 'fastify' {
+  interface FastifyInstance {
+    ollamaClient: OllamaClientInterface
+  }
+}
+
 export async function buildApp() {
   const fastify = Fastify({
     logger: true,
-    requestTimeout: 300000,
   }).withTypeProvider<ZodTypeProvider>()
 
   fastify.setValidatorCompiler(validatorCompiler)
@@ -62,20 +68,18 @@ export async function buildApp() {
   })
 
   const roastRepository = new RoastRepository()
+  const leaderboardRepository = new LeaderboardRepository()
   const analysisIssueRepository = new AnalysisIssueRepository()
   const codeDiffRepository = new CodeDiffRepository()
-  const ollamaClient = new OllamaClient(
-    process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434',
-    process.env.OLLAMA_MODEL ?? 'qwen2.5-coder:1.5b'
-  )
-  const leaderboardRepository = new LeaderboardRepository()
+  const ollamaClient = new OllamaClient()
+
+  fastify.decorate('ollamaClient', ollamaClient)
 
   await fastify.register(healthRoutes)
   await fastify.register(roastRoutes, {
     repository: roastRepository,
-    analysisIssueRepository: analysisIssueRepository,
-    codeDiffRepository: codeDiffRepository,
-    ollamaClient: ollamaClient,
+    analysisIssueRepository,
+    codeDiffRepository,
   })
   await fastify.register(metricsRoutes, { repository: roastRepository })
   await fastify.register(leaderboardRoutes, { repository: leaderboardRepository })

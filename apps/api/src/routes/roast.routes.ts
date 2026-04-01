@@ -1,19 +1,18 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
-import type { RoastContract } from '../contracts/roast.contract.js'
-import type { AnalysisIssueContract } from '../contracts/roast.contract.js'
-import type { CodeDiffContract } from '../contracts/roast.contract.js'
+import type {
+  AnalysisIssueContract,
+  CodeDiffContract,
+  RoastContract,
+} from '../contracts/roast.contract.js'
 import type { CreateRoastInput } from '../entities/roast.entity.js'
-import type { OllamaClient } from '../lib/ollama-client.js'
 import { CreateRoastUseCase } from '../use-cases/create-roast.use-case.js'
-import { GetRoastFullUseCase } from '../use-cases/get-roast-full.use-case.js'
 import { GetRoastUseCase } from '../use-cases/get-roast.use-case.js'
 import { ListRoastsUseCase } from '../use-cases/list-roasts.use-case.js'
 import {
   CreateRoastBodySchema,
   GetRoastParamsSchema,
   ListRoastsQuerySchema,
-  RoastFullResponseSchema,
   RoastResponseSchema,
 } from './schemas.js'
 
@@ -23,14 +22,13 @@ export function roastRoutes(
     repository,
     analysisIssueRepository,
     codeDiffRepository,
-    ollamaClient,
   }: {
     repository: RoastContract
     analysisIssueRepository: AnalysisIssueContract
     codeDiffRepository: CodeDiffContract
-    ollamaClient: OllamaClient
   }
 ) {
+  const ollamaClient = fastify.ollamaClient
   fastify.post<{ Body: CreateRoastInput }>(
     '/roasts',
     {
@@ -47,18 +45,16 @@ export function roastRoutes(
       try {
         const useCase = new CreateRoastUseCase(
           repository,
+          ollamaClient,
           analysisIssueRepository,
-          codeDiffRepository,
-          ollamaClient
+          codeDiffRepository
         )
         const roast = await useCase.execute(request.body)
 
         const response = {
           ...roast,
-          createdAt:
-            typeof roast.createdAt === 'string' ? roast.createdAt : roast.createdAt.toISOString(),
-          updatedAt:
-            typeof roast.updatedAt === 'string' ? roast.updatedAt : roast.updatedAt.toISOString(),
+          createdAt: roast.createdAt.toISOString(),
+          updatedAt: roast.updatedAt.toISOString(),
         }
 
         return reply.code(201).send(response)
@@ -77,48 +73,25 @@ export function roastRoutes(
       schema: {
         params: GetRoastParamsSchema,
         response: {
-          200: RoastFullResponseSchema,
+          200: RoastResponseSchema,
           404: z.object({ error: z.string() }),
         },
         tags: ['Roasts'],
-        description: 'Get a roast by ID with issues and diffs',
+        description: 'Get a roast by ID',
       },
     },
     async (request, reply) => {
-      const useCase = new GetRoastFullUseCase(
-        repository,
-        analysisIssueRepository,
-        codeDiffRepository
-      )
-      const result = await useCase.execute(request.params.id)
+      const useCase = new GetRoastUseCase(repository)
+      const roast = await useCase.execute(request.params.id)
 
-      if (!result) {
+      if (!roast) {
         return reply.code(404).send({ error: 'Roast not found' })
       }
 
-      const { roast, issues, diffs } = result
-
       return {
         ...roast,
-        createdAt:
-          typeof roast.createdAt === 'string' ? roast.createdAt : roast.createdAt.toISOString(),
-        updatedAt:
-          typeof roast.updatedAt === 'string' ? roast.updatedAt : roast.updatedAt.toISOString(),
-        issues: issues.map(issue => ({
-          id: issue.id,
-          title: issue.title,
-          description: issue.description,
-          severity: issue.severity,
-          issueType: issue.issueType,
-          lineNumber: issue.lineNumber,
-        })),
-        diffs: diffs.map(diff => ({
-          id: diff.id,
-          removedLine: diff.removedLine,
-          addedLine: diff.addedLine,
-          context: diff.context,
-          lineNumber: diff.lineNumber,
-        })),
+        createdAt: roast.createdAt.toISOString(),
+        updatedAt: roast.updatedAt.toISOString(),
       }
     }
   )
@@ -141,10 +114,8 @@ export function roastRoutes(
 
       return roasts.map(roast => ({
         ...roast,
-        createdAt:
-          typeof roast.createdAt === 'string' ? roast.createdAt : roast.createdAt.toISOString(),
-        updatedAt:
-          typeof roast.updatedAt === 'string' ? roast.updatedAt : roast.updatedAt.toISOString(),
+        createdAt: roast.createdAt.toISOString(),
+        updatedAt: roast.updatedAt.toISOString(),
       }))
     }
   )
