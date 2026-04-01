@@ -86,4 +86,87 @@ export const healthHandler = http.get('http://localhost:3333/health', async () =
   })
 })
 
-export const handlers = [metricsHandler, worstLeaderboardHandler, leaderboardHandler, healthHandler]
+export const createRoastHandler = http.post('http://localhost:3333/roasts', async () => {
+  await delay(100)
+  return HttpResponse.json(
+    {
+      id: 'test-roast-id-123',
+      userId: null,
+      code: 'const x = 1',
+      language: 'javascript',
+      lineCount: 1,
+      score: 42,
+      verdict: 'needs_serious_help',
+      roastQuote: 'Your code is a disaster',
+      roastMode: 'roast',
+      suggestedFix: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    { status: 201 }
+  )
+})
+
+export const getRoastHandler = http.get<{ id: string }>(
+  'http://localhost:3333/roasts/:id',
+  async ({ params }) => {
+    await delay(100)
+    return HttpResponse.json({
+      id: params.id,
+      userId: null,
+      code: 'const x = 1',
+      language: 'javascript',
+      lineCount: 1,
+      score: 42,
+      verdict: 'needs_serious_help',
+      roastQuote: 'Your code is a disaster. This is absolutely terrible code.',
+      roastMode: 'roast',
+      suggestedFix: '--- a\n+++ b\n@@ -1 +1 @@\n-const x = 1\n+const y = 2\n',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      issues: [
+        {
+          id: 'issue-1',
+          title: 'Naming convention violation',
+          description: 'Variable "x" should use camelCase',
+          severity: 'warning',
+          issueType: 'naming',
+          lineNumber: 1,
+        },
+        {
+          id: 'issue-2',
+          title: 'Unused variable',
+          description: 'Variable "x" is declared but never used',
+          severity: 'critical',
+          issueType: 'unused',
+          lineNumber: 1,
+        },
+      ],
+      diffs: [
+        {
+          id: 'diff-1',
+          removedLine: 'const x = 1',
+          addedLine: null,
+          context: null,
+          lineNumber: 1,
+        },
+        {
+          id: 'diff-2',
+          removedLine: null,
+          addedLine: 'const y = 2',
+          context: null,
+          lineNumber: 2,
+        },
+      ],
+    })
+  }
+)
+
+export const handlers = [
+  metricsHandler,
+  worstLeaderboardHandler,
+  leaderboardHandler,
+  healthHandler,
+  createRoastHandler,
+  getRoastHandler,
+]
