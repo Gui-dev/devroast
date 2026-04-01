@@ -16,6 +16,25 @@ A web application that analyzes and rates code with brutally honest feedback.
 
 ---
 
+## Screenshots
+
+> [!TIP]
+> Add your project screenshots here!
+>
+> Recommended images:
+> - Homepage with code editor
+> - Roast result page with score and feedback
+> - Leaderboard page
+> - Mobile responsive view
+
+<!-- 
+Example:
+![Homepage](./docs/screenshots/homepage.png)
+![Roast Result](./docs/screenshots/roast-result.png)
+-->
+
+---
+
 ## Table of Contents
 
 - [About](#about)
@@ -27,6 +46,7 @@ A web application that analyzes and rates code with brutally honest feedback.
   - [Scripts](#available-scripts)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
+- [Testing](#testing)
 - [Project Structure](#project-structure)
 - [Conventions](#conventions)
 - [Contributing](#contributing)
@@ -38,12 +58,30 @@ A web application that analyzes and rates code with brutally honest feedback.
 
 Devroast is a code analysis tool that provides brutally honest feedback on your code. Paste any code snippet, and get an instant roast with a score based on code quality, best practices, and potential issues.
 
-### Key Features
+The application uses **AI-powered code analysis** via Ollama (local LLM) to generate sarcastic roasts, identify issues, and provide suggested fixes.
 
-- **Smart Syntax Highlighting** - Automatic language detection with manual override option
-- **Code Analysis** - Instant feedback on code quality
-- **Roast Mode** - Maximum sarcasm enabled for maximum entertainment
-- **Leaderboard** - See the worst code on the internet ranked by shame
+---
+
+## Features
+
+### Core Features
+
+- **Smart Code Editor** - Paste code with automatic language detection and manual override
+- **AI-Powered Analysis** - Uses Ollama (qwen2.5-coder:1.5b) for code analysis
+- **Roast Modes** - Choose between "Roast" (sarcastic) or "Honest" (constructive) feedback
+- **Scoring System** - Code scored 0-10 based on quality, with visual score ring
+- **Issue Detection** - Identifies code issues with severity levels (critical, warning, good)
+- **Suggested Fixes** - AI-generated diff suggestions to improve code
+- **Leaderboard** - Rank the worst code submissions by shame score
+- **Shareable URLs** - Open Graph images for sharing roasts on social media
+
+### Technical Features
+
+- **API Backend** - Fastify REST API with Swagger documentation
+- **Database** - PostgreSQL with Drizzle ORM
+- **E2E Tests** - Playwright for web, supertest for API
+- **Type Safety** - Full TypeScript with Zod validation
+- **Design System** - Component library with Storybook documentation
 
 ---
 
@@ -81,6 +119,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - **Node.js** 18+
 - **PNPM** 9.0+
 - **Git**
+- **Docker** (for PostgreSQL)
 
 ### Setup
 
@@ -97,27 +136,52 @@ cd devroast
 pnpm install
 ```
 
-3. **Start the development server**
+3. **Start the database**
+
+```bash
+docker-compose up -d
+```
+
+4. **Push database schema**
+
+```bash
+pnpm --filter api db:push
+```
+
+5. **Start the development server**
 
 ```bash
 pnpm dev
 ```
 
-4. **Open the application**
+6. **Open the application**
 
 Navigate to [http://localhost:3000](http://localhost:3000)
+
+### Environment Variables
+
+Create `apps/api/.env`:
+
+```env
+DATABASE_URL=postgresql://root:root@localhost:5432/devroast
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen2.5-coder:1.5b
+```
 
 ### Available Scripts
 
 | Command | Description |
 |---------|-------------|
-| `pnpm dev` | Start development server |
-| `pnpm build` | Build for production |
-| `pnpm lint` | Run linting |
-| `pnpm lint:fix` | Fix linting issues automatically |
-| `pnpm format` | Format code |
-| `pnpm format:check` | Check code formatting |
-| `pnpm clean` | Clean cache and build artifacts |
+| `pnpm dev` | Start all apps in development mode |
+| `pnpm dev:web` | Start only the web app (port 3000) |
+| `pnpm dev:api` | Start only the API (port 3333) |
+| `pnpm build` | Build all apps for production |
+| `pnpm lint` | Run Biome linting |
+| `pnpm format` | Format code with Biome |
+| `pnpm test` | Run all tests |
+| `pnpm test:watch` | Run tests in watch mode |
+| `pnpm db:studio` | Open Drizzle Studio |
+| `pnpm seed` | Seed database with fake data |
 
 ---
 
@@ -130,39 +194,76 @@ This project uses **Turborepo** for monorepo management:
 ```
 devroast/
 ├── apps/
-│   └── web/                    # Next.js application
+│   ├── api/                    # Fastify REST API
+│   │   └── src/
+│   │       ├── routes/         # API endpoints
+│   │       ├── use-cases/      # Business logic
+│   │       ├── repositories/   # Data access (Drizzle + InMemory)
+│   │       ├── contracts/      # Repository interfaces
+│   │       ├── entities/       # Domain types
+│   │       └── lib/            # Utilities (Ollama client)
+│   │
+│   └── web/                    # Next.js 16 application
 │       └── src/
 │           ├── app/            # App Router pages
 │           ├── components/     # React components
 │           └── lib/            # Utilities
+│
 ├── docs/                       # Documentation
-├── packages/                   # Shared packages (future)
-├── turbo.json                  # Turbo configuration
-└── biome.json                  # Biome configuration
+│   ├── specs/                  # Feature specifications
+│   ├── plans/                  # Implementation plans
+│   └── skills/                 # Agent guidelines
+│
+├── docker-compose.yml          # PostgreSQL database
+├── turbo.json                  # Turborepo config
+└── biome.json                  # Biome linting config
 ```
 
-### Design System
+### API Architecture (Hexagonal)
 
-The UI follows a composition-based component pattern:
-
-```tsx
-// Components are composed with sub-components
-<Card variant="critical">
-  <CardHeader>
-    <Badge variant="critical" />
-  </CardHeader>
-  <CardTitle>Card Title</CardTitle>
-  <CardDescription>Card description text</CardDescription>
-</Card>
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         Frontend (Next.js)                       │
+│                                                                  │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │
+│  │  page.tsx   │ ──▶ │  MetricsSrv │ ──▶ │ AnimatedMtr │       │
+│  │ (Server)    │     │  (Server)   │     │  (Client)   │       │
+│  └─────────────┘     └─────────────┘     └──────┬──────┘       │
+│                                                  │               │
+│                                                  ▼               │
+│  ┌─────────────┐                         ┌─────────────┐        │
+│  │ Providers   │ ◀───────────────────── │TanStack Q  │        │
+│  │ (QueryClient│                         │(cache)     │        │
+│  └─────────────┘                         └─────────────┘        │
+└─────────────────────────────────────────────────────────────────┘
+                              │ Fetch
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                         Backend (Fastify)                        │
+│                                                                  │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │
+│  │ /metrics    │ ──▶ │ Use Cases   │ ──▶ │ Repositories│       │
+│  │  (Route)    │     │             │     │ (Drizzle)   │       │
+│  └─────────────┘     └─────────────┘     └──────┬──────┘       │
+│                                                  │               │
+│                                                  ▼               │
+│                                        ┌─────────────────┐      │
+│                                        │   PostgreSQL    │      │
+│                                        └─────────────────┘      │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Code Editor
+### API Endpoints
 
-The code editor uses a **textarea + syntax highlighting overlay** pattern inspired by [ray.so](https://ray.so):
-
-- **Auto-detection**: Language is automatically detected using `highlight.js`
-- **Syntax highlighting**: Powered by `Shiki` with the Vesper theme
-- **Paste-only**: Users paste code, view highlighting, and can manually override the language
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| POST | `/roasts` | Create a new roast |
+| GET | `/roasts` | List all roasts |
+| GET | `/roasts/:id` | Get roast by ID |
+| GET | `/metrics` | Get global metrics |
+| GET | `/leaderboard` | Get full leaderboard |
+| GET | `/leaderboard/worst` | Get top 3 worst roasts |
 
 ---
 
@@ -174,16 +275,30 @@ The code editor uses a **textarea + syntax highlighting overlay** pattern inspir
 |------------|---------|---------|
 | [Next.js](https://nextjs.org/) | 16.x | React framework |
 | [React](https://react.dev/) | 19.x | UI library |
+| [Fastify](https://fastify.dev/) | 5.x | REST API framework |
 | [TypeScript](https://www.typescriptlang.org/) | 5.x | Type safety |
 | [Tailwind CSS](https://tailwindcss.com/) | v4 | Styling |
 | [Biome](https://biomejs.dev/) | 1.9+ | Linting & formatting |
 
-### Libraries
+### Backend
 
-| Library | Purpose |
-|---------|---------|
+| Technology | Purpose |
+|------------|---------|
+| [Drizzle ORM](https://orm.drizzle.team/) | PostgreSQL ORM |
+| [Zod](https://zod.dev/) | Input validation |
+| [Vercel AI SDK](https://sdk.vercel.ai/) | Ollama integration |
+| [Supertest](https://github.com/ladjs/superagent) | API E2E testing |
+
+### Frontend
+
+| Technology | Purpose |
+|------------|---------|
+| [TanStack Query](https://tanstack.com/query) | Server state management |
 | [Shiki](https://shiki.matsu.io/) | Syntax highlighting |
 | [highlight.js](https://highlightjs.org/) | Language auto-detection |
+| [Playwright](https://playwright.dev/) | E2E testing |
+| [MSW](https://mswjs.io/) | API mocking for tests |
+| [Storybook](https://storybook.js.org/) | Component documentation |
 
 ### Tooling
 
@@ -191,6 +306,42 @@ The code editor uses a **textarea + syntax highlighting overlay** pattern inspir
 |------|---------|
 | [Turborepo](https://turbo.build/) | Monorepo orchestration |
 | [PNPM](https://pnpm.io/) | Package management |
+| [Vitest](https://vitest.dev/) | Unit testing |
+| [Docker](https://docker.com/) | Containerization |
+
+---
+
+## Testing
+
+### Test Strategy
+
+- **Unit Tests** - Use in-memory repositories for isolated testing
+- **API E2E Tests** - Use supertest with in-memory implementations
+- **Web E2E Tests** - Use Playwright with MSW for API mocking
+
+### Running Tests
+
+```bash
+# Run all tests
+pnpm test
+
+# Run API tests
+pnpm --filter api test
+
+# Run web tests
+pnpm --filter web test
+
+# Run specific test file
+pnpm vitest run path/to/test.test.ts
+```
+
+### Test Coverage
+
+| Type | Location | Framework |
+|------|----------|-----------|
+| Unit Tests | `src/**/*.test.ts` | Vitest |
+| API E2E | `src/routes/*.e2e.test.ts` | supertest + Vitest |
+| Web E2E | `test/e2e/*.spec.ts` | Playwright |
 
 ---
 
@@ -199,50 +350,67 @@ The code editor uses a **textarea + syntax highlighting overlay** pattern inspir
 ```
 devroast/
 ├── apps/
+│   ├── api/
+│   │   └── src/
+│   │       ├── app.ts                    # Fastify app builder
+│   │       ├── index.ts                  # API entry point
+│   │       ├── db/                       # Drizzle config & schema
+│   │       ├── routes/                   # API endpoints
+│   │       │   ├── health.routes.ts
+│   │       │   ├── roast.routes.ts
+│   │       │   ├── metrics.routes.ts
+│   │       │   ├── leaderboard.routes.ts
+│   │       │   ├── schemas.ts             # Zod schemas
+│   │       │   └── *.e2e.test.ts         # E2E tests
+│   │       ├── use-cases/                # Business logic
+│   │       ├── repositories/             # Data access
+│   │       │   └── in-memory/            # In-memory for tests
+│   │       ├── contracts/                # Repository interfaces
+│   │       ├── entities/                 # Domain types
+│   │       ├── lib/                      # Utilities
+│   │       │   └── ollama-client.ts      # AI client
+│   │       └── test/                     # Test helpers & mocks
+│   │
 │   └── web/
 │       └── src/
-│           ├── app/
-│           │   ├── globals.css        # Global styles & design tokens
-│           │   ├── layout.tsx        # Root layout
-│           │   ├── page.tsx          # Homepage
-│           │   └── components/
-│           │       └── page.tsx      # Component showcase
+│           ├── app/                      # Next.js App Router
+│           │   ├── page.tsx              # Homepage
+│           │   ├── layout.tsx            # Root layout
+│           │   ├── globals.css           # Design tokens
+│           │   └── roast/
+│           │       └── [id]/             # Roast detail page
 │           │
-│           ├── components/
-│           │   ├── navbar.tsx        # Navigation component
-│           │   │
-│           │   └── ui/               # Design system components
-│           │       ├── button.tsx
-│           │       ├── badge.tsx
-│           │       ├── toggle.tsx
-│           │       ├── diff-line.tsx
-│           │       ├── card.tsx
-│           │       ├── score-ring.tsx
-│           │       ├── link.tsx
-│           │       ├── leaderboard-row.tsx
-│           │       │
-│           │       ├── code-editor/   # Code editor with auto-detect
-│           │       │   ├── index.ts
-│           │       │   └── code-editor.tsx
-│           │       │
-│           │       └── code-block/    # Static code block
-│           │           ├── index.ts
-│           │           └── code-block.tsx
+│           ├── components/               # React components
+│           │   ├── ui/                   # Design system
+│           │   ├── code-editor/          # Editor with highlighting
+│           │   ├── code-block/           # Static code display
+│           │   ├── metrics-card.tsx      # Animated metrics
+│           │   ├── msw-provider.tsx      # Test mocking
+│           │   └── providers.tsx         # Query client provider
 │           │
-│           └── lib/
-│               ├── cn.ts              # Utility for class merging
-│               └── detect-language.ts # Language detection utility
+│           └── lib/                      # Utilities
+│               ├── cn.ts                 # Class merge utility
+│               ├── detect-language.ts    # Language detection
+│               └── query-client.ts       # TanStack Query setup
 │
 ├── docs/
-│   ├── specs/                       # Feature specifications
-│   │   └── code-editor.md
-│   └── skills/
+│   ├── specs/                            # Feature specs
+│   │   └── *.md
+│   ├── plans/                           # Implementation plans
+│   │   └── *.md
+│   └── skills/                          # Agent guidelines
 │       └── commits-guideline.md
 │
-├── biome.json                       # Biome configuration
-├── turbo.json                      # Turborepo configuration
-├── pnpm-workspace.yaml             # Workspace definition
-└── package.json                    # Root package.json
+├── test/
+│   ├── e2e/                             # Web E2E tests
+│   │   ├── *.spec.ts
+│   │   └── mocks/                       # MSW handlers
+│   └── playwright.config.ts
+│
+├── docker-compose.yml                    # PostgreSQL
+├── turbo.json                            # Turborepo
+├── biome.json                            # Biome config
+└── package.json                         # Root package
 ```
 
 ---
@@ -255,6 +423,12 @@ devroast/
 - **File naming**: `kebab-case` (e.g., `code-editor.tsx`, `my-component.tsx`)
 - **Exports**: Named exports only (no default exports)
 - **Components**: Use `forwardRef` when ref forwarding is needed
+
+### API Development
+
+- **Validation**: Always use Zod schemas in routes
+- **Error Handling**: Use Fastify's built-in error handling
+- **Testing**: Use in-memory repositories for isolated tests
 
 ### Component Pattern
 
@@ -269,16 +443,6 @@ export const CardDescription = forwardRef<HTMLParagraphElement, CardDescriptionP
 
 // Barrel export in index.ts
 export { Card, CardHeader, CardTitle, CardDescription }
-```
-
-### Folder Structure for Components
-
-When a component has sub-components, organize in a folder:
-
-```
-code-editor/
-├── index.ts              # Barrel export
-└── code-editor.tsx      # Component + sub-components
 ```
 
 ### Git Commits
@@ -349,15 +513,19 @@ Contributions are welcome! Please follow these steps:
    ```bash
    pnpm lint
    ```
-5. **Commit your changes**
+5. **Run tests**
+   ```bash
+   pnpm test
+   ```
+6. **Commit your changes**
    ```bash
    git commit -m "feat(scope): description"
    ```
-6. **Push to your branch**
+7. **Push to your branch**
    ```bash
    git push origin feat/your-feature-name
    ```
-7. **Open a Pull Request**
+8. **Open a Pull Request**
 
 ---
 
