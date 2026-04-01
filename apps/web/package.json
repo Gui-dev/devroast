@@ -8,6 +8,10 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "format": "biome format . --write",
@@ -32,6 +36,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.0",
+    "@msw/playwright": "0.6.6",
+    "@playwright/test": "^1.58.2",
     "@storybook/addon-a11y": "10.3.3",
     "@storybook/nextjs-vite": "^10.3.3",
     "@tailwindcss/postcss": "^4",
@@ -43,10 +49,16 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "jsdom": "^29.0.1",
+    "msw": "^2.12.14",
     "storybook": "10.3.3",
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.0.0"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
