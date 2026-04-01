@@ -15,11 +15,18 @@ describe('metrics routes', () => {
   })
 
   describe('GET /metrics', () => {
-    it('should return metrics with empty database', async () => {
+    it('should return metrics with zero values for empty repo', async () => {
       const response = await supertest(app.server).get('/metrics').expect(200)
 
       expect(response.body).toHaveProperty('totalRoasts')
       expect(response.body).toHaveProperty('avgScore')
+    })
+
+    it('should return valid JSON structure', async () => {
+      const response = await supertest(app.server).get('/metrics').expect(200)
+
+      expect(typeof response.body.totalRoasts).toBe('number')
+      expect(typeof response.body.avgScore).toBe('number')
     })
   })
 })
