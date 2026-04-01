@@ -25,7 +25,14 @@ declare module 'fastify' {
   }
 }
 
-export async function buildApp() {
+interface BuildAppOptions {
+  repository?: RoastRepository
+  analysisIssueRepository?: AnalysisIssueRepository
+  codeDiffRepository?: CodeDiffRepository
+  leaderboardRepository?: LeaderboardRepository
+}
+
+export async function buildApp(options: BuildAppOptions = {}) {
   const fastify = Fastify({
     logger: true,
   }).withTypeProvider<ZodTypeProvider>()
@@ -67,10 +74,10 @@ export async function buildApp() {
     },
   })
 
-  const roastRepository = new RoastRepository()
-  const leaderboardRepository = new LeaderboardRepository()
-  const analysisIssueRepository = new AnalysisIssueRepository()
-  const codeDiffRepository = new CodeDiffRepository()
+  const roastRepository = options.repository ?? new RoastRepository()
+  const leaderboardRepository = options.leaderboardRepository ?? new LeaderboardRepository()
+  const analysisIssueRepository = options.analysisIssueRepository ?? new AnalysisIssueRepository()
+  const codeDiffRepository = options.codeDiffRepository ?? new CodeDiffRepository()
   const ollamaClient = new OllamaClient()
 
   fastify.decorate('ollamaClient', ollamaClient)
