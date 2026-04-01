@@ -19,9 +19,14 @@ out/
 .env.production.local
 
 # Ignorar arquivos do turbo
-.cache/
+.turbo/
 turbo.json
-.turbo
+.cache/
 
 # Worktrees
 .worktrees/
+
+# Test outputs
+playwright-report/
+test-results/
+storybook-static/
