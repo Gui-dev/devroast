@@ -34,7 +34,14 @@ export class RoastRepository implements RoastContract {
   async findById(id: string): Promise<Roast | null> {
     const result = await db.execute(sql`SELECT * FROM roasts WHERE id = ${id}`)
 
-    return (result.rows[0] as unknown as Roast) ?? null
+    if (!result.rows[0]) return null
+
+    const row = result.rows[0] as Record<string, unknown>
+    return {
+      ...row,
+      createdAt: new Date(row.createdAt as string),
+      updatedAt: new Date(row.updatedAt as string),
+    } as unknown as Roast
   }
 
   async findAll(limit?: number): Promise<Roast[]> {
@@ -42,7 +49,14 @@ export class RoastRepository implements RoastContract {
       sql`SELECT * FROM roasts ORDER BY "createdAt" DESC LIMIT ${limit ?? 100}`
     )
 
-    return result.rows as unknown as Roast[]
+    return result.rows.map(row => {
+      const r = row as Record<string, unknown>
+      return {
+        ...r,
+        createdAt: new Date(r.createdAt as string),
+        updatedAt: new Date(r.updatedAt as string),
+      } as unknown as Roast
+    })
   }
 
   async update(id: string, data: UpdateRoastInput): Promise<Roast | null> {
