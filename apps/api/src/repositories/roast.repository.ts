@@ -67,11 +67,23 @@ export class RoastRepository implements RoastContract {
     )
     const diffsResult = await db.execute(sql`SELECT * FROM "codeDiffs" WHERE "roastId" = ${id}`)
 
-    return {
-      roast,
-      issues: issuesResult.rows as unknown as AnalysisIssue[],
-      diffs: diffsResult.rows as unknown as CodeDiff[],
-    }
+    const issues = issuesResult.rows.map(row => {
+      const r = row as Record<string, unknown>
+      return {
+        ...r,
+        createdAt: new Date(r.createdAt as string),
+      } as unknown as AnalysisIssue
+    })
+
+    const diffs = diffsResult.rows.map(row => {
+      const r = row as Record<string, unknown>
+      return {
+        ...r,
+        createdAt: new Date(r.createdAt as string),
+      } as unknown as CodeDiff
+    })
+
+    return { roast, issues, diffs }
   }
 
   async findAll(limit?: number): Promise<Roast[]> {
