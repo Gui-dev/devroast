@@ -10,6 +10,9 @@ import type {
 export interface RoastContract {
   create(data: CreateRoastInput): Promise<Roast>
   findById(id: string): Promise<Roast | null>
+  findByIdWithRelations(
+    id: string
+  ): Promise<{ roast: Roast | null; issues: AnalysisIssue[]; diffs: CodeDiff[] }>
   findAll(limit?: number): Promise<Roast[]>
   update(id: string, data: UpdateRoastInput): Promise<Roast | null>
   delete(id: string): Promise<boolean>

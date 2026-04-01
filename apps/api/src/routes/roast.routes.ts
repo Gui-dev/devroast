@@ -13,6 +13,7 @@ import {
   CreateRoastBodySchema,
   GetRoastParamsSchema,
   ListRoastsQuerySchema,
+  RoastFullResponseSchema,
   RoastResponseSchema,
 } from './schemas.js'
 
@@ -73,7 +74,7 @@ export function roastRoutes(
       schema: {
         params: GetRoastParamsSchema,
         response: {
-          200: RoastResponseSchema,
+          200: RoastFullResponseSchema,
           404: z.object({ error: z.string() }),
         },
         tags: ['Roasts'],
@@ -81,8 +82,7 @@ export function roastRoutes(
       },
     },
     async (request, reply) => {
-      const useCase = new GetRoastUseCase(repository)
-      const roast = await useCase.execute(request.params.id)
+      const { roast, issues, diffs } = await repository.findByIdWithRelations(request.params.id)
 
       if (!roast) {
         return reply.code(404).send({ error: 'Roast not found' })
@@ -92,6 +92,8 @@ export function roastRoutes(
         ...roast,
         createdAt: roast.createdAt.toISOString(),
         updatedAt: roast.updatedAt.toISOString(),
+        issues,
+        diffs,
       }
     }
   )

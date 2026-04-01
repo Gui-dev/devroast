@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm'
 import type { RoastContract } from '../contracts/roast.contract.js'
 import { db } from '../db/index.js'
 import type { CreateRoastInput, Roast, UpdateRoastInput } from '../entities/roast.entity.js'
+import type { AnalysisIssue, CodeDiff } from '../entities/roast.entity.js'
 
 export class RoastRepository implements RoastContract {
   async create(data: CreateRoastInput): Promise<Roast> {
@@ -53,6 +54,26 @@ export class RoastRepository implements RoastContract {
     } as unknown as Roast
   }
 
+  async findByIdWithRelations(id: string): Promise<{
+    roast: Roast | null
+    issues: AnalysisIssue[]
+    diffs: CodeDiff[]
+  }> {
+    const roast = await this.findById(id)
+    if (!roast) return { roast: null, issues: [], diffs: [] }
+
+    const issuesResult = await db.execute(
+      sql`SELECT * FROM "analysisIssues" WHERE "roastId" = ${id}`
+    )
+    const diffsResult = await db.execute(sql`SELECT * FROM "codeDiffs" WHERE "roastId" = ${id}`)
+
+    return {
+      roast,
+      issues: issuesResult.rows as unknown as AnalysisIssue[],
+      diffs: diffsResult.rows as unknown as CodeDiff[],
+    }
+  }
+
   async findAll(limit?: number): Promise<Roast[]> {
     const result = await db.execute(
       sql`SELECT * FROM roasts ORDER BY "createdAt" DESC LIMIT ${limit ?? 100}`
@@ -78,10 +99,12 @@ export class RoastRepository implements RoastContract {
       setClauses.push(`verdict = '${data.verdict}'`)
     }
     if (data.roastQuote !== undefined) {
-      setClauses.push(`"roastQuote" = '${data.roastQuote.replace(/'/g, "''")}'`)
+      const quote = data.roastQuote ?? ''
+      setClauses.push(`"roastQuote" = '${quote.replace(/'/g, "''")}'`)
     }
     if (data.suggestedFix !== undefined) {
-      setClauses.push(`"suggestedFix" = '${data.suggestedFix.replace(/'/g, "''")}'`)
+      const fix = data.suggestedFix ?? ''
+      setClauses.push(`"suggestedFix" = '${fix.replace(/'/g, "''")}'`)
     }
 
     setClauses.push(`"updatedAt" = '${new Date().toISOString()}'`)

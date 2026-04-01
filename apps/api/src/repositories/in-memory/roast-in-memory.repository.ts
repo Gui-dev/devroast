@@ -43,6 +43,15 @@ export class InMemoryRoastRepository implements RoastContract {
     return this.roasts.find(r => r.id === id) ?? null
   }
 
+  async findByIdWithRelations(id: string): Promise<{
+    roast: Roast | null
+    issues: AnalysisIssue[]
+    diffs: CodeDiff[]
+  }> {
+    const roast = await this.findById(id)
+    return { roast, issues: [], diffs: [] }
+  }
+
   async findAll(limit?: number): Promise<Roast[]> {
     const sorted = [...this.roasts].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     return limit ? sorted.slice(0, limit) : sorted
