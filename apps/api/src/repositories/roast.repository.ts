@@ -28,7 +28,16 @@ export class RoastRepository implements RoastContract {
 
     const result = await db.execute(sql`SELECT * FROM roasts WHERE id = ${id}`)
 
-    return result.rows[0] as unknown as Roast
+    if (!result.rows[0]) {
+      throw new Error('Failed to create roast')
+    }
+
+    const row = result.rows[0] as Record<string, unknown>
+    return {
+      ...row,
+      createdAt: new Date(row.createdAt as string),
+      updatedAt: new Date(row.updatedAt as string),
+    } as unknown as Roast
   }
 
   async findById(id: string): Promise<Roast | null> {
